@@ -2,15 +2,21 @@ import GridGraph from '../data-structures/GridGraph';
 import GridLocation from '../data-structures/GridLocation';
 import Queue from '../data-structures/Queue';
 
-export const bfs = (graph: GridGraph, start: GridLocation): Map<GridLocation, GridLocation> => {
+export const bfs = (
+  graph: GridGraph,
+  start: GridLocation,
+  visitedCallback?: (location: GridLocation) => void,
+): Map<GridLocation, GridLocation | null> => {
   const frontier = new Queue<GridLocation>();
-  const cameFrom = new Map<GridLocation, GridLocation>();
+  const cameFrom = new Map<GridLocation, GridLocation | null>();
 
   frontier.enqueue(start);
   cameFrom.set(start, null);
 
   while (!frontier.isEmpty()) {
-    const current = frontier.dequeue();
+    const current = frontier.dequeue()!;
+
+    if (visitedCallback) visitedCallback(current);
 
     graph.neighbors(current).forEach((next) => {
       if (!cameFrom.has(next)) {
@@ -27,17 +33,20 @@ export const bfsEarlyExit = (
   graph: GridGraph,
   start: GridLocation,
   goal: GridLocation,
-): Map<GridLocation, GridLocation> => {
+  visitedCallback?: (x: number, y: number) => void,
+): Map<GridLocation, GridLocation | null> => {
   const frontier = new Queue<GridLocation>();
-  const cameFrom = new Map<GridLocation, GridLocation>();
+  const cameFrom = new Map<GridLocation, GridLocation | null>();
 
   frontier.enqueue(start);
   cameFrom.set(start, null);
 
   while (!frontier.isEmpty()) {
-    const current = frontier.dequeue();
+    const current = frontier.dequeue()!;
 
-    if (current === goal) break;
+    if (visitedCallback) visitedCallback(current.row, current.col);
+
+    if (current.equal(goal)) break;
 
     graph.neighbors(current).forEach((next) => {
       if (!cameFrom.has(next)) {

@@ -4,16 +4,16 @@ import PriorityQueue from '../data-structures/PriorityQueue';
 
 const heuristic = (a: GridLocation, b: GridLocation): number => {
   // Manhattan distance on a square grid
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+  return Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
 };
 
 export const aStar = (
   graph: GridGraphWithWeights,
   start: GridLocation,
   goal: GridLocation,
-): Map<GridLocation, GridLocation> => {
+): Map<GridLocation, GridLocation | null> => {
   const frontier = new PriorityQueue<GridLocation>();
-  const cameFrom = new Map<GridLocation, GridLocation>();
+  const cameFrom = new Map<GridLocation, GridLocation | null>();
   const costSoFar = new Map<GridLocation, number>();
 
   frontier.enqueue(start, 0);
@@ -21,13 +21,13 @@ export const aStar = (
   costSoFar.set(start, 0);
 
   while (!frontier.isEmpty()) {
-    const current = frontier.dequeue();
+    const current = frontier.dequeue()!;
 
-    if (current === goal) break;
+    if (current.equal(goal)) break;
 
     graph.neighbors(current).forEach((next) => {
-      const newCost = costSoFar.get(current) + graph.costs(current, next);
-      if (!costSoFar.has(next) || newCost < costSoFar.get(next)) {
+      const newCost = costSoFar.get(current)! + graph.costs(current, next);
+      if (!costSoFar.has(next) || newCost < costSoFar.get(next)!) {
         const priority = heuristic(current, next) + newCost;
         costSoFar.set(next, newCost);
         frontier.enqueue(next, priority);

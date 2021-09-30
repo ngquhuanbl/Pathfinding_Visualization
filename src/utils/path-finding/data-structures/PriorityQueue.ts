@@ -27,7 +27,7 @@ class PriorityQueue<ValueType> {
   }
 
   enqueue(value: ValueType, priority: number) {
-    const newItem = new PQItem<ValueType>(value, priority);
+    const newItem = new PQItem(value, priority);
     if (this.isEmpty()) {
       this.head = newItem;
       this.tail = newItem;
@@ -41,14 +41,10 @@ class PriorityQueue<ValueType> {
       // A suitable inserting position is found
       if (current.priority > priority) {
         // Insert the item
-        if (current === this.head) {
-          newItem.next = this.head;
-          this.head = newItem;
-        } else {
-          newItem.next = current;
-          prev.next = newItem;
-        }
-        break;
+        if (prev !== null) prev.next = newItem;
+        else this.head = newItem;
+        newItem.next = current;
+        return;
       }
 
       prev = current;
@@ -56,23 +52,18 @@ class PriorityQueue<ValueType> {
     }
 
     // If newItem has the highest priority
-    if (current === null) {
-      this.tail.next = newItem;
-      this.tail = newItem;
-    }
+    this.tail!.next = newItem;
+    this.tail = newItem;
   }
 
-  dequeue(): ValueType | undefined {
-    if (this.isEmpty()) return undefined;
+  dequeue(): ValueType | null {
+    if (this.isEmpty()) return null;
 
-    const res = this.head.value;
+    const res = this.head!.value;
 
-    if (this.head === this.tail) {
-      this.head = null;
-      this.tail = null;
-    } else {
-      this.head = this.head.next;
-    }
+    this.head = this.head!.next;
+
+    if (this.head === null) this.tail = null;
 
     return res;
   }

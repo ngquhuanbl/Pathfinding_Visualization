@@ -1,11 +1,15 @@
 class GridLocation {
-  x: number;
+  row: number;
 
-  y: number;
+  col: number;
 
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+  constructor(row: number, col: number) {
+    this.row = row;
+    this.col = col;
+  }
+
+  equal(value: GridLocation) {
+    return this.row === value.row && this.col === value.col;
   }
 }
 

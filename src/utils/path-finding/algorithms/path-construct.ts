@@ -15,17 +15,17 @@
 import GridLocation from '../data-structures/GridLocation';
 
 export const pathConstruct = (
-  cameFrom: Map<GridLocation, GridLocation>,
+  cameFrom: Map<GridLocation, GridLocation | null>,
   start: GridLocation,
   goal: GridLocation,
 ): GridLocation[] => {
-  let current = cameFrom.get(goal);
+  let current = cameFrom.get(goal)!;
 
   const res = [];
 
-  while (current !== start) {
+  while (!current.equal(start)) {
     res.push(current);
-    current = cameFrom.get(current);
+    current = cameFrom.get(current)!;
   }
 
   res.push(start);

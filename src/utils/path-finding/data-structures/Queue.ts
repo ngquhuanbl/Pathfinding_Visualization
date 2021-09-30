@@ -19,34 +19,45 @@ class Queue<ValueType> {
     this.tail = null;
   }
 
-  isEmpty(): boolean {
+  isEmpty() {
     return this.head === null;
   }
 
   enqueue(value: ValueType) {
-    const newItem = new QueueItem<ValueType>(value);
+    const newItem = new QueueItem(value);
     if (this.isEmpty()) {
       this.head = newItem;
       this.tail = newItem;
       return;
     }
 
-    this.tail.next = newItem;
+    this.tail!.next = newItem;
     this.tail = newItem;
   }
 
-  dequeue(): ValueType | undefined {
-    if (this.isEmpty()) return undefined;
+  dequeue(): ValueType | null {
+    if (this.isEmpty()) return null;
 
-    const res = this.head.value;
+    const res = this.head!.value;
 
     if (this.head === this.tail) {
       this.head = null;
       this.tail = null;
     } else {
-      this.head = this.head.next;
+      this.head = this.head!.next;
     }
 
+    return res;
+  }
+
+  traverse(): ValueType[] {
+    const res = [];
+    let current = this.head;
+    while (current) {
+      const { value } = current;
+      res.push(value);
+      current = current.next;
+    }
     return res;
   }
 }

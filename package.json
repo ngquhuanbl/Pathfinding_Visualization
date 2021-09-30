@@ -14,6 +14,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "framer-motion": "^4",
+    "immutability-helper": "^3.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
@@ -60,9 +61,13 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "husky": ">=6",
     "lint-staged": ">=10",
-    "prettier": "^2.3.2"
+    "prettier": "^2.3.2",
+    "typescript-plugin-css-modules": "^3.4.0"
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": "eslint --fix"
+    "*.{js,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   }
 }
