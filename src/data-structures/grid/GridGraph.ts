@@ -1,4 +1,4 @@
-import GridLocation from './GridLocation';
+import GridLocation from 'data-structures/location/GridLocation';
 
 class GridGraph {
   static DIRS: [GridLocation, GridLocation, GridLocation, GridLocation];
@@ -7,24 +7,19 @@ class GridGraph {
 
   nRow: number;
 
-  grid: GridLocation[][];
+  data: GridLocation[][];
 
   walls: Set<GridLocation>;
 
-  constructor(nRow: number, nCol: number) {
+  constructor(nRow: number, nCol: number, data?: GridLocation[][]) {
     this.nRow = nRow;
     this.nCol = nCol;
 
-    this.grid = (() => {
-      const res = new Array(nRow);
-      for (let row = 0; row < nRow; row += 1) {
-        res[row] = new Array(nCol);
-        for (let col = 0; col < nCol; col += 1) {
-          res[row][col] = new GridLocation(row, col);
-        }
-      }
-      return res;
-    })();
+    this.data =
+      data ||
+      Array.from({ length: nRow }, (_, row) =>
+        Array.from({ length: nCol }, (__, col) => new GridLocation(row, col)),
+      );
 
     this.walls = new Set();
   }
@@ -41,7 +36,7 @@ class GridGraph {
   }
 
   cell(row: number, col: number): GridLocation | null {
-    return this.grid[row]?.[col] || null;
+    return this.data[row]?.[col] || null;
   }
 
   neighbors(location: GridLocation): GridLocation[] {
@@ -50,7 +45,7 @@ class GridGraph {
     GridGraph.DIRS.forEach((dir) => {
       const row = location.row + dir.row;
       const col = location.col + dir.col;
-      const next = this.grid[row]?.[col];
+      const next = this.data[row]?.[col];
 
       if (this.isInBound(next) && this.isPassable(next)) {
         res.push(next);

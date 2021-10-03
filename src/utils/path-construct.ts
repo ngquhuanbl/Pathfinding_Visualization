@@ -12,7 +12,7 @@
  * *****************************************************
  */
 
-import GridLocation from '../data-structures/GridLocation';
+import GridLocation from 'data-structures/location/GridLocation';
 
 export const pathConstruct = (
   cameFrom: Map<GridLocation, GridLocation | null>,

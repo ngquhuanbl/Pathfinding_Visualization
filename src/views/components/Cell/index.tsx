@@ -1,12 +1,18 @@
-import { memo } from 'react';
+import { useCallback, memo } from 'react';
 
 import { Box, keyframes } from '@chakra-ui/react';
 
-interface Props {
+export interface Props {
+  row: number;
+  col: number;
   isVisited: boolean;
   isPathStep: boolean;
   isStart: boolean;
   isEnd: boolean;
+  isWall: boolean;
+  onMouseDown: (row: number, col: number) => void;
+  onMouseEnter: (row: number, col: number) => void;
+  onMouseUp: (row: number, col: number) => void;
 }
 
 const visitedKeyframe = keyframes`
@@ -48,7 +54,18 @@ const pathStepKeyframe = keyframes`
   }
 `;
 
-const Cell = ({ isVisited, isPathStep, isStart, isEnd }: Props): JSX.Element => {
+const Cell = ({
+  row,
+  col,
+  isVisited,
+  isPathStep,
+  isStart,
+  isEnd,
+  isWall,
+  onMouseDown,
+  onMouseEnter,
+  onMouseUp,
+}: Props): JSX.Element => {
   let animation;
   if (isVisited)
     animation = `${visitedKeyframe} 1 1.5s ease-out alternate ${
@@ -70,6 +87,22 @@ const Cell = ({ isVisited, isPathStep, isStart, isEnd }: Props): JSX.Element => 
     borderColor = 'green.400';
     bgColor = 'green.400';
   }
+  if (isWall) {
+    borderColor = 'gray.800';
+    bgColor = 'gray.800';
+  }
+
+  const handleMouseDown = useCallback(() => {
+    onMouseDown(row, col);
+  }, [row, col, onMouseDown]);
+
+  const handleMouseEnter = useCallback(() => {
+    onMouseEnter(row, col);
+  }, [row, col, onMouseEnter]);
+
+  const handleMouseUp = useCallback(() => {
+    onMouseUp(row, col);
+  }, [row, col, onMouseUp]);
 
   return (
     <Box
@@ -80,6 +113,9 @@ const Cell = ({ isVisited, isPathStep, isStart, isEnd }: Props): JSX.Element => 
       display="inline-block"
       bgColor={bgColor}
       animation={animation}
+      onMouseDown={handleMouseDown}
+      onMouseEnter={handleMouseEnter}
+      onMouseUp={handleMouseUp}
     />
   );
 };

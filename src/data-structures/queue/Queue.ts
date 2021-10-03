@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-class QueueItem<ValueType> {
+export class QueueItem<ValueType> {
   value: ValueType;
 
   next: QueueItem<ValueType> | null;
@@ -9,6 +9,7 @@ class QueueItem<ValueType> {
     this.next = null;
   }
 }
+
 class Queue<ValueType> {
   head: QueueItem<ValueType> | null;
 

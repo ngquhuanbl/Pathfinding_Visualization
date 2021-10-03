@@ -12,6 +12,7 @@ class PQItem<ValueType> {
     this.next = null;
   }
 }
+
 class PriorityQueue<ValueType> {
   head: PQItem<ValueType> | null;
 
@@ -65,6 +66,17 @@ class PriorityQueue<ValueType> {
 
     if (this.head === null) this.tail = null;
 
+    return res;
+  }
+
+  traverse(): ValueType[] {
+    const res = [];
+    let current = this.head;
+    while (current) {
+      const { value } = current;
+      res.push(value);
+      current = current.next;
+    }
     return res;
   }
 }

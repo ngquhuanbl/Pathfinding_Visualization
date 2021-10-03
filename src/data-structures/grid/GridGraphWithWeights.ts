@@ -1,11 +1,12 @@
+import GridLocation from 'data-structures/location/GridLocation';
+
 import GridGraph from './GridGraph';
-import GridLocation from './GridLocation';
 
 class GridGraphWithWeights extends GridGraph {
   forest: Set<GridLocation>;
 
-  constructor(width: number, height: number) {
-    super(width, height);
+  constructor(nRow: number, nCol: number, data?: GridLocation[][]) {
+    super(nRow, nCol, data);
     this.forest = new Set();
   }
 
