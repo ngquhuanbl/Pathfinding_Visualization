@@ -5,7 +5,7 @@ import update from 'immutability-helper';
 
 import * as algorithms from 'algorithms';
 import { PathFindingAlgorithm } from 'algorithms/types';
-import GridGraphWithWeights from 'data-structures/grid/GridGraphWithWeights';
+import GridGraphWithWeights from 'data-structures/graph/GridGraphWithWeights';
 import BoardLocation from 'data-structures/location/BoardLocation';
 import GridLocation from 'data-structures/location/GridLocation';
 import { pathConstruct } from 'utils/path-construct';

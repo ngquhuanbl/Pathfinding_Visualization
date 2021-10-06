@@ -37,6 +37,50 @@ const visitedKeyframe = keyframes`
   }
 `;
 
+const startVisitedKeyframe = keyframes`
+  0% {
+    transform: scale(0.3);
+    background-color: var(--chakra-colors-red-400);
+    border-radius: 50%;
+  }
+
+  50% {
+    background-color: var(--chakra-colors-red-400);
+  }
+
+  75% {
+    transform: scale(1.2);
+    background-color: var(--chakra-colors-red-400);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: var(--chakra-colors-red-400);
+  }
+`;
+
+const endVisitedKeyframe = keyframes`
+  0% {
+    transform: scale(0.3);
+    background-color: var(--chakra-colors-green-400);
+    border-radius: 50%;
+  }
+
+  50% {
+    background-color: var(--chakra-colors-green-400);
+  }
+
+  75% {
+    transform: scale(1.2);
+    background-color: var(--chakra-colors-green-400);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: var(--chakra-colors-green-400);
+  }
+`;
+
 const pathStepKeyframe = keyframes`
   0% {
     transform: scale(0.6);
@@ -67,14 +111,8 @@ const Cell = ({
   onMouseUp,
 }: Props): JSX.Element => {
   let animation;
-  if (isVisited)
-    animation = `${visitedKeyframe} 1 1.5s ease-out alternate ${
-      isStart || isEnd ? 'none' : 'forwards'
-    }`;
-  if (isPathStep)
-    animation = `${pathStepKeyframe} 1 1.5s ease-out alternate ${
-      isStart || isEnd ? 'none' : 'forwards'
-    }`;
+  if (isVisited) animation = `${visitedKeyframe} 1 1.5s ease-out alternate forwards`;
+  if (isPathStep) animation = `${pathStepKeyframe} 1 1.5s ease-out alternate forwards`;
 
   let borderColor = 'blue.200';
 
@@ -82,10 +120,12 @@ const Cell = ({
   if (isStart) {
     borderColor = 'red.400';
     bgColor = 'red.400';
+    if (isVisited) animation = `${startVisitedKeyframe} 1 1.5s ease-out alternate forwards`;
   }
   if (isEnd) {
     borderColor = 'green.400';
     bgColor = 'green.400';
+    if (isVisited) animation = `${endVisitedKeyframe} 1 1.5s ease-out alternate forwards`;
   }
   if (isWall) {
     borderColor = 'gray.800';

@@ -1,6 +1,8 @@
 import GridLocation from 'data-structures/location/GridLocation';
 
-class GridGraph {
+import Graph from './Graph';
+
+class GridGraph extends Graph {
   static DIRS: [GridLocation, GridLocation, GridLocation, GridLocation];
 
   nCol: number;
@@ -12,6 +14,8 @@ class GridGraph {
   walls: Set<GridLocation>;
 
   constructor(nRow: number, nCol: number, data?: GridLocation[][]) {
+    super();
+
     this.nRow = nRow;
     this.nCol = nCol;
 

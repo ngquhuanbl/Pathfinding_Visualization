@@ -1,4 +1,4 @@
-import GridGraphWithWeights from 'data-structures/grid/GridGraphWithWeights';
+import GridGraphWithWeights from 'data-structures/graph/GridGraphWithWeights';
 import GridLocation from 'data-structures/location/GridLocation';
 
 export type CameFrom = Map<GridLocation, GridLocation | null>;
