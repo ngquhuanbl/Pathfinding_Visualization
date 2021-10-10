@@ -12,20 +12,28 @@
  * *****************************************************
  */
 
-import GridLocation from 'data-structures/location/GridLocation';
+import GridLocation from './data-structures/location/GridLocation';
 
 export const pathConstruct = (
   cameFrom: Map<GridLocation, GridLocation | null>,
-  start: GridLocation,
-  goal: GridLocation,
+  gridData: GridLocation[][],
+  startRow: number,
+  startCol: number,
+  endRow: number,
+  endCol: number,
 ): GridLocation[] => {
-  let current = cameFrom.get(goal)!;
+  const start = gridData[startRow][startCol];
+  const end = gridData[endRow][endCol];
 
-  const res = [];
+  let current = cameFrom.get(end);
 
-  while (!current.equal(start)) {
+  if (!current) return [];
+
+  const res: GridLocation[] = [end];
+
+  while (current && !current.equal(start)) {
     res.push(current);
-    current = cameFrom.get(current)!;
+    current = cameFrom.get(current);
   }
 
   res.push(start);
