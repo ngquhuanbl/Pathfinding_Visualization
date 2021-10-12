@@ -11,6 +11,7 @@ export interface Props {
   isEnd: boolean;
   isWall: boolean;
   isDesert: boolean;
+  noAnimation: boolean;
   onMouseDown: (
     row: number,
     col: number,
@@ -70,8 +71,8 @@ const desertVisitedKeyframe = keyframes`
 
   100% {
     transform: scale(1);
-    background-color: var(--chakra-colors-orange-800);
-    border-color: var(--chakra-colors-orange-800);
+    background-color: var(--chakra-colors-orange-500);
+    border-color: var(--chakra-colors-orange-400);
   }
 `;
 
@@ -103,7 +104,25 @@ const pathStepKeyframe = keyframes`
   100% {
     transform: scale(1);
     background-color: var(--chakra-colors-yellow-300);
-    border-color: var(--chakra-colors-blue-200);
+    border-color: var(--chakra-colors-yellow-200);
+  }
+`;
+
+const desertPathStepKeyframe = keyframes`
+  0% {
+    transform: scale(0.6);
+    background-color: var(--chakra-colors-yellow-100);
+  }
+
+  50% {
+    transform: scale(1.2);
+    background-color: var(--chakra-colors-yellow-200);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: var(--chakra-colors-yellow-500);
+    border-color: var(--chakra-colors-yellow-400);
   }
 `;
 
@@ -116,6 +135,7 @@ const Cell = ({
   isEnd,
   isWall,
   isDesert,
+  noAnimation,
   onMouseDown,
   onMouseEnter,
   onMouseUp,
@@ -129,16 +149,16 @@ const Cell = ({
 
   if (isStart) {
     borderColor = 'red.400';
-    bgColor = 'red.400';
+    bgColor = 'red.300';
   } else if (isEnd) {
     borderColor = 'green.400';
-    bgColor = 'green.400';
+    bgColor = 'green.300';
   } else if (isWall) {
     borderColor = 'gray.800';
-    bgColor = 'gray.800';
+    bgColor = 'gray.700';
   } else if (isDesert) {
     borderColor = 'orange.400';
-    bgColor = 'orange.400';
+    bgColor = 'orange.300';
   }
 
   let animation;
@@ -147,10 +167,38 @@ const Cell = ({
     else animation = `${visitedKeyframe} 1 1.5s ease-out alternate forwards`;
   }
 
-  if (isPathStep) animation = `${pathStepKeyframe} 1 1.5s ease-out alternate forwards`;
+  if (isPathStep) {
+    animation = `${pathStepKeyframe} 1 1.5s ease-out alternate forwards`;
+    if (isDesert) animation = `${desertPathStepKeyframe} 1 1.5s ease-out alternate forwards`;
+  }
 
   if ((isVisited || isPathStep) && (isStart || isEnd))
     animation = `${startOrEndKeyframe} 1 1.5s ease-out alternate forwards`;
+
+  if (noAnimation) {
+    animation = '';
+    /**
+     * Color the cell using background color
+     * since colors came along with animation won't be applied
+     * when the animation is removed
+     */
+    if (isVisited && !isStart && !isEnd) {
+      bgColor = 'blue.300';
+      borderColor = 'blue.200';
+      if (isDesert) {
+        bgColor = 'orange.500';
+        borderColor = 'orange.400';
+      }
+    }
+    if (isPathStep && !isStart && !isEnd) {
+      bgColor = 'yellow.300';
+      borderColor = 'yellow.200';
+      if (isDesert) {
+        bgColor = 'yellow.500';
+        borderColor = 'yellow.400';
+      }
+    }
+  }
 
   const handleMouseDown = useCallback(() => {
     onMouseDown(row, col, isStart, isEnd, isWall, isDesert);
@@ -167,6 +215,7 @@ const Cell = ({
   return (
     <Box
       border="1px"
+      userSelect="none"
       borderColor={borderColor}
       w={6}
       h={6}

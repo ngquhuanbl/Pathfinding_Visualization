@@ -15,6 +15,8 @@ class GridLocation {
 
   isEnd: boolean;
 
+  noAnimation: boolean;
+
   constructor(
     row: number,
     col: number,
@@ -33,6 +35,7 @@ class GridLocation {
     this.isPathStep = isPathStep;
     this.isStart = isStart;
     this.isEnd = isEnd;
+    this.noAnimation = false;
   }
 
   equal(value: GridLocation) {

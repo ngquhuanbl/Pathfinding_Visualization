@@ -1,7 +1,7 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect, SyntheticEvent } from 'react';
 
 import { DeleteIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, Select, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Select, Spacer, Text } from '@chakra-ui/react';
 import merge from 'deepmerge';
 import update from 'immutability-helper';
 
@@ -17,6 +17,7 @@ import {
 import GridLocation from 'utils/data-structures/location/GridLocation';
 import { pathConstruct } from 'utils/path-construct';
 import Cell from 'views/components/Cell';
+import Legends from 'views/components/Legends';
 
 export type DrawingAction = 'DRAWING_ACTION_ADD_ITEM' | 'DRAWING_ACTION_REMOVE_ITEM';
 export type DrawingItem = 'DRAWING_ITEM_WALL' | 'DRAWING_ITEM_DESERT';
@@ -55,6 +56,10 @@ const Grid = () => {
    * isVirtualizing: A boolean state indicating if the virtualization process is running
    */
   const [isVirtualizing, setIsVirtualizing] = useState(false);
+  /**
+   * isVirtualizationDone: A boolean state indicating if the virtualization process is done
+   */
+  const [isVirtualizationDone, setIsVirtualizationDone] = useState(false);
   /**
    * isChangingStartLocation: A boolean state indicating if user is dragging the start location to a new location
    */
@@ -110,7 +115,10 @@ const Grid = () => {
     setSelectedDrawingItem(e.currentTarget.value);
   }, []);
 
-  const handleStartLocationChange = useCallback(
+  /**
+   * Update start location
+   */
+  const handleChangeStartLocation = useCallback(
     (
       newStartRow: number,
       newStartCol: number,
@@ -118,12 +126,22 @@ const Grid = () => {
       isEnd: boolean,
       isWall: boolean,
     ) => {
-      if (!isStart && !isEnd && !isWall)
+      /**
+       * A new location for start
+       * must not be ones that has already been occupied by a wall or the end location
+       */
+      if (!isEnd && !isWall)
         setStartRow((oldStartRow) => {
           setStartCol((oldStartCol) => {
             setGridData((oldGridData) =>
               update(
                 oldGridData,
+                /**
+                 * Use deep merge to create update object config
+                 * Normal object destructuring will potentially overide properties
+                 * since it's possible for oldStartRow and newStartRow to share the same value
+                 * (such scenario can also happen to oldStartCol and newStartCol)
+                 */
                 merge(
                   {
                     [oldStartRow]: { [oldStartCol]: { isStart: { $set: false } } },
@@ -140,14 +158,27 @@ const Grid = () => {
     [],
   );
 
-  const handleEndLocationChange = useCallback(
+  /**
+   * Update end location
+   */
+  const handleChangeEndLocation = useCallback(
     (newEndRow: number, newEndCol: number, isStart: boolean, isEnd: boolean, isWall: boolean) => {
-      if (!isStart && !isEnd && !isWall)
+      /**
+       * A new location for start
+       * must not be ones that has already been occupied by a wall or the start location
+       */
+      if (!isStart && !isWall)
         setEndRow((oldEndRow) => {
           setEndCol((oldEndCol) => {
             setGridData((oldGridData) =>
               update(
                 oldGridData,
+                /**
+                 * Use deep merge to create update object config
+                 * Normal object destructuring will potentially overide properties
+                 * since it's possible for oldStartRow and newStartRow to share the same value
+                 * (such scenario can also happen to oldStartCol and newStartCol)
+                 */
                 merge(
                   {
                     [oldEndRow]: { [oldEndCol]: { isEnd: { $set: false } } },
@@ -164,6 +195,9 @@ const Grid = () => {
     [],
   );
 
+  /**
+   * User can perform drawing action on the grid to create/remove a wall or a desert area
+   */
   const handleDrawing = useCallback(
     (
       row: number,
@@ -174,42 +208,55 @@ const Grid = () => {
       isDesert: boolean,
       drawingAction: DrawingAction,
     ) => {
+      /**
+       * Prevent user to draw onto the start and end location
+       */
       if (!isStart && !isEnd) {
+        /**
+         * Prevent user to draw a wall on a desert location
+         */
         if (selectedDrawingItem === 'DRAWING_ITEM_WALL' && isDesert) return;
+        /**
+         * Prevent user to draw a desert area on a wall location
+         */
         if (selectedDrawingItem === 'DRAWING_ITEM_DESERT' && isWall) return;
 
         const value = drawingAction === 'DRAWING_ACTION_ADD_ITEM';
         const updatedKey = selectedDrawingItem === 'DRAWING_ITEM_WALL' ? 'isWall' : 'isDesert';
 
-        setGridData((oldGridData) => {
-          let newGridData = oldGridData;
-          if (value)
-            newGridData = update(oldGridData, {
-              [row]: {
-                [col]: {
-                  [updatedKey]: { $set: value },
-                  isVisited: { $set: false },
-                  isPathStep: { $set: false },
-                },
+        setGridData((oldGridData) =>
+          update(oldGridData, {
+            [row]: {
+              [col]: {
+                [updatedKey]: { $set: value },
               },
-            });
-          else
-            newGridData = update(oldGridData, {
-              [row]: {
-                [col]: {
-                  [updatedKey]: { $set: value },
-                },
-              },
-            });
-          return newGridData;
-        });
+            },
+          }),
+        );
       }
     },
     [selectedDrawingItem],
   );
 
-  // TODO: Improve method dependencies
-  const handleMouseDown = useCallback(
+  /**
+   * Handle mousedown event on the container wrapping all grid cells
+   */
+  const handleMouseDownOnTheContainerOfAllCells = useCallback(
+    (event: SyntheticEvent) => {
+      /**
+       * If the virtualization process is running,
+       * prevent all attached events of all cells from happening
+       * by stop the further propagation of the mouse events
+       */
+      if (isVirtualizing) event.stopPropagation();
+    },
+    [isVirtualizing],
+  );
+
+  /**
+   * Handle mousedown event on a cell
+   */
+  const handleMouseDownOnCell = useCallback(
     (
       row: number,
       col: number,
@@ -218,29 +265,40 @@ const Grid = () => {
       isWall: boolean,
       isDesert: boolean,
     ) => {
-      if (!isVirtualizing) {
-        if (isStart) {
-          setIsChangingStartLocation(true);
-        } else if (isEnd) {
-          setIsChangingEndLocation(true);
-        } else {
-          setIsDrawing(true);
-          let drawingAction: DrawingAction = isWall
-            ? 'DRAWING_ACTION_REMOVE_ITEM'
-            : 'DRAWING_ACTION_ADD_ITEM';
-          if (selectedDrawingItem === 'DRAWING_ITEM_DESERT') {
-            drawingAction = isDesert ? 'DRAWING_ACTION_REMOVE_ITEM' : 'DRAWING_ACTION_ADD_ITEM';
-          }
-          setCurrentDrawingAction(drawingAction);
-          handleDrawing(row, col, isStart, isEnd, isWall, isDesert, drawingAction);
+      if (isStart) {
+        setIsChangingStartLocation(true);
+      } else if (isEnd) {
+        setIsChangingEndLocation(true);
+      } else {
+        setIsDrawing(true);
+        let drawingAction: DrawingAction = 'DRAWING_ACTION_ADD_ITEM';
+        /**
+         * Starting to draw on a drawn cell will result in
+         * the removal of the applied drawing style of the targeted cell.
+         * Only cells of the same drawing item type are affected by the removal.
+         * E.g. A wall removal will only remove wall styling from wall cells.
+         * In contrast, drawing on a empty cell will apply the drawing style.
+         */
+        if (
+          (selectedDrawingItem === 'DRAWING_ITEM_DESERT' && isDesert) ||
+          (selectedDrawingItem === 'DRAWING_ITEM_WALL' && isWall)
+        ) {
+          drawingAction = 'DRAWING_ACTION_REMOVE_ITEM';
         }
+        setCurrentDrawingAction(drawingAction);
+        /**
+         * Apply the drawing action on the mousedown cell.
+         */
+        handleDrawing(row, col, isStart, isEnd, isWall, isDesert, drawingAction);
       }
     },
-    [isVirtualizing, handleDrawing, selectedDrawingItem],
+    [handleDrawing, selectedDrawingItem],
   );
 
-  // TODO: Improve method dependencies
-  const handleMouseEnter = useCallback(
+  /**
+   * Handle mouseenet event on a cell
+   */
+  const handleMouseEnterOnCell = useCallback(
     (
       row: number,
       col: number,
@@ -250,9 +308,9 @@ const Grid = () => {
       isForest: boolean,
     ) => {
       if (isChangingStartLocation) {
-        handleStartLocationChange(row, col, isStart, isEnd, isWall);
+        handleChangeStartLocation(row, col, isStart, isEnd, isWall);
       } else if (isChangingEndLocation) {
-        handleEndLocationChange(row, col, isStart, isEnd, isWall);
+        handleChangeEndLocation(row, col, isStart, isEnd, isWall);
       } else if (isDrawing) {
         handleDrawing(row, col, isStart, isEnd, isWall, isForest, currentDrawingAction);
       }
@@ -261,14 +319,17 @@ const Grid = () => {
       isChangingStartLocation,
       isChangingEndLocation,
       isDrawing,
-      handleStartLocationChange,
-      handleEndLocationChange,
+      handleChangeStartLocation,
+      handleChangeEndLocation,
       handleDrawing,
       currentDrawingAction,
     ],
   );
 
-  const handleMouseUp = useCallback(() => {
+  /**
+   * Handle mouseenet event on a cell
+   */
+  const handleMouseUpOnCell = useCallback(() => {
     setIsChangingStartLocation(false);
     setIsChangingEndLocation(false);
     setIsDrawing(false);
@@ -281,6 +342,9 @@ const Grid = () => {
     (visitedInOrder: GridLocation[]): Promise<void> =>
       new Promise<void>((resolve) => {
         visitedInOrder.forEach(({ row: visitedRow, col: visitedCol }, index, array) => {
+          /**
+           * Use setTimeout to let state update be rendered instead of batched
+           */
           const timerId = setTimeout(() => {
             setGridData((prevState) =>
               update(prevState, {
@@ -289,6 +353,9 @@ const Grid = () => {
             );
             if (index === array.length - 1) resolve();
           }, 20 * index);
+          /**
+           * Keep track of enqueued timers
+           */
           timerIds.current.push(timerId);
         });
       }),
@@ -303,7 +370,10 @@ const Grid = () => {
       if (paths.length === 0) resolve();
 
       paths.forEach(({ row, col }, index, array) => {
-        setTimeout(() => {
+        /**
+         * Use setTimeout to let state update be rendered instead of batched
+         */
+        const timerId = setTimeout(() => {
           setGridData((prevState) =>
             update(prevState, {
               [row]: { [col]: { isPathStep: { $set: true } } },
@@ -311,6 +381,10 @@ const Grid = () => {
           );
           if (index === array.length - 1) resolve();
         }, 30 * index);
+        /**
+         * Keep track of enqueued timers
+         */
+        timerIds.current.push(timerId);
       });
     });
   }, []);
@@ -335,6 +409,7 @@ const Grid = () => {
     }
 
     setIsVirtualizing(false);
+    setIsVirtualizationDone(false);
   }, []);
 
   /**
@@ -357,15 +432,24 @@ const Grid = () => {
     }
 
     setIsVirtualizing(false);
+    setIsVirtualizationDone(false);
   }, []);
 
+  /**
+   * Start the virtualization process
+   */
   const handleVirtualize = async () => {
     handleClearVirtualizedData();
 
     setIsVirtualizing(true);
+    setIsVirtualizationDone(false);
 
     const visitedInOrder: GridLocation[] = [];
     const algorithmFunc = ALGORITHMS[selectedAlgorithm].execute;
+
+    /**
+     * Calculate location mapping (location - location that it came from)
+     */
     const cameFrom = algorithmFunc(
       gridData,
       startRow,
@@ -373,15 +457,104 @@ const Grid = () => {
       endRow,
       endCol,
       (visitedLocation) => {
+        /**
+         * Save all visited location in visting order
+         */
         visitedInOrder.push(visitedLocation);
       },
     );
+    /**
+     * Animate the visited location
+     */
     await animateAlgorithm(visitedInOrder);
+
+    /**
+     * Generate list of locations that form the shortest path from start location to end location
+     */
     const paths = pathConstruct(cameFrom, gridData, startRow, startCol, endRow, endCol);
+    /**
+     * Animate the locations that form the shortest path
+     */
     await animatePathConstruct(paths);
 
     setIsVirtualizing(false);
+    setIsVirtualizationDone(true);
   };
+
+  /**
+   * After a completed virtualization process,
+   * if user change the start or end location,
+   * the grid will show the path-finding result corresponding with the new start/end location instantly without animation
+   */
+  const handleInstantPreview = useCallback(
+    (startRowIndex: number, startColIndex: number, endRowIndex: number, endColIndex: number) => {
+      setGridData((oldGridData) => {
+        const visitedInOrder: GridLocation[] = [];
+
+        const algorithmFunc = ALGORITHMS[selectedAlgorithm].execute;
+
+        /**
+         * Init the new grid data with a non-virtualized data.
+         */
+        const newGridData = oldGridData.map((rowData) =>
+          rowData.map(
+            ({ row, col, isWall, isDesert, isStart, isEnd }) =>
+              new GridLocation(row, col, isWall, isDesert, false, false, isStart, isEnd),
+          ),
+        );
+
+        /**
+         * Calculate location mapping (location - location that it came from)
+         */
+        const cameFrom = algorithmFunc(
+          newGridData,
+          startRowIndex,
+          startColIndex,
+          endRowIndex,
+          endColIndex,
+          (visitedLocation) => {
+            visitedInOrder.push(visitedLocation);
+          },
+        );
+
+        /**
+         * Generate list of location that form the shortest path from start location to end location
+         */
+        const paths = pathConstruct(
+          cameFrom,
+          newGridData,
+          startRowIndex,
+          startColIndex,
+          endRowIndex,
+          endColIndex,
+        );
+
+        /**
+         * Update grid state to reflect all visited cells
+         * We can mutate newGridData since it's a newly created object which is independent to olGridData
+         */
+        visitedInOrder.forEach(({ row: visitedRow, col: visitedCol }) => {
+          newGridData[visitedRow][visitedCol].isVisited = true;
+          newGridData[visitedRow][visitedCol].noAnimation = true;
+        });
+
+        /**
+         * Update grid state to reflect all cells that form the shortest path
+         * We can mutate newGridData since it's a newly created object which is independent to olGridData
+         */
+        paths.forEach(({ row, col }) => {
+          newGridData[row][col].isPathStep = true;
+        });
+
+        return newGridData;
+      });
+    },
+    [selectedAlgorithm],
+  );
+
+  useEffect(() => {
+    if (isVirtualizationDone) handleInstantPreview(startRow, startCol, endRow, endCol);
+  }, [isVirtualizationDone, startRow, startCol, endRow, endCol, handleInstantPreview]);
 
   return (
     <Flex direction="column" alignItems="center">
@@ -424,12 +597,25 @@ const Grid = () => {
           Clear virtualized data + walls + desert
         </Button>
       </Flex>
-      <Box cursor={isVirtualizing ? 'not-allowed' : ''}>
+      <Box
+        cursor={isVirtualizing ? 'not-allowed' : ''}
+        onMouseDownCapture={handleMouseDownOnTheContainerOfAllCells}
+      >
         {gridData.map((rowData, index) => (
           // eslint-disable-next-line react/no-array-index-key
           <Flex key={`row-${index}`}>
             {rowData.map(
-              ({ row, col, isVisited, isPathStep, isStart, isEnd, isWall, isDesert }) => (
+              ({
+                row,
+                col,
+                isVisited,
+                isPathStep,
+                isStart,
+                isEnd,
+                isWall,
+                isDesert,
+                noAnimation,
+              }) => (
                 <Cell
                   key={`${row}-${col}`}
                   row={row}
@@ -440,34 +626,39 @@ const Grid = () => {
                   isEnd={isEnd}
                   isDesert={isDesert}
                   isWall={isWall}
-                  onMouseDown={handleMouseDown}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseUp={handleMouseUp}
+                  noAnimation={noAnimation}
+                  onMouseDown={handleMouseDownOnCell}
+                  onMouseEnter={handleMouseEnterOnCell}
+                  onMouseUp={handleMouseUpOnCell}
                 />
               ),
             )}
           </Flex>
         ))}
       </Box>
-      <Flex mt={6} w="full" alignItems="center">
-        <Text mr={2} fontWeight="600">
-          Drawing item:
-        </Text>
-        <Select
-          w={60}
-          value={selectedDrawingItem}
-          disabled={isVirtualizing}
-          onChange={handleSelectDrawingItem}
-        >
-          <option value="DRAWING_ITEM_WALL">Wall</option>
-          <option value="DRAWING_ITEM_DESERT">Desert</option>
-        </Select>
-        <Box
-          ml={2}
-          w={4}
-          h={4}
-          bgColor={selectedDrawingItem === 'DRAWING_ITEM_WALL' ? 'gray.800' : 'orange.400'}
-        />
+      <Flex mt={6} w="full" alignItems="flex-start">
+        <HStack>
+          <Text fontWeight="600">Drawing item:</Text>
+          <Select
+            w={60}
+            value={selectedDrawingItem}
+            disabled={isVirtualizing}
+            onChange={handleSelectDrawingItem}
+          >
+            <option value="DRAWING_ITEM_WALL">Wall</option>
+            <option value="DRAWING_ITEM_DESERT">Desert</option>
+          </Select>
+          <Box
+            ml={2}
+            w={4}
+            h={4}
+            borderWidth="1px"
+            bgColor={selectedDrawingItem === 'DRAWING_ITEM_WALL' ? 'gray.800' : 'orange.400'}
+            borderColor={selectedDrawingItem === 'DRAWING_ITEM_WALL' ? 'gray.700' : 'orange.300'}
+          />
+        </HStack>
+        <Spacer />
+        <Legends />
       </Flex>
     </Flex>
   );
