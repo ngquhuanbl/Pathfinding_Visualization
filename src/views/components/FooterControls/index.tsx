@@ -13,15 +13,19 @@ import {
   Text,
 } from '@chakra-ui/react';
 
+import { INITIAL_SPEED, MAX_SPEED, MIN_SPEED } from 'constants/speed';
+
 interface Props {
   selectedDrawingItem: string;
   onSelectDrawingItem: (event: SyntheticEvent) => void;
+  onSpeedChange: (value: number) => void;
   isVirtualizing: boolean;
 }
 
 const FooterControls = ({
   selectedDrawingItem,
   onSelectDrawingItem,
+  onSpeedChange,
   isVirtualizing,
 }: Props): JSX.Element => {
   return (
@@ -31,7 +35,7 @@ const FooterControls = ({
       gap={4}
       alignItems="center"
     >
-      <GridItem colSpan={1} display="inline" verticalAlign="middle">
+      <GridItem colSpan={1}>
         <Text fontWeight="600">Drawing item:</Text>
       </GridItem>
       <GridItem colSpan={2}>
@@ -59,11 +63,19 @@ const FooterControls = ({
         <Text fontWeight="600">Speed:</Text>
       </GridItem>
       <GridItem colSpan={2}>
-        <Slider aria-label="slider-ex-1" defaultValue={30} w={10} width="full">
+        <Slider
+          colorScheme="cyan"
+          aria-label="speed slider"
+          width="full"
+          min={MIN_SPEED}
+          max={MAX_SPEED}
+          defaultValue={INITIAL_SPEED}
+          onChange={onSpeedChange}
+        >
           <SliderTrack>
             <SliderFilledTrack />
           </SliderTrack>
-          <SliderThumb />
+          <SliderThumb boxSize={6} />
         </Slider>
       </GridItem>
     </Grid>

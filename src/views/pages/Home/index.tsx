@@ -13,7 +13,9 @@ import {
   N_COL,
   N_ROW,
 } from 'constants/grid';
+import { INITIAL_SPEED } from 'constants/speed';
 import GridLocation from 'utils/data-structures/location/GridLocation';
+import { calculateDelayFromSpeed } from 'utils/delay';
 import { pathConstruct } from 'utils/path-construct';
 import FooterControls from 'views/components/FooterControls';
 import Grid from 'views/components/Grid';
@@ -78,11 +80,11 @@ const Homepage = () => {
 
   /**
    * The virtualization process uses setTimeout to schedule UI state update
-   * By keep track of scheduled timer IDs,
-   * we will be able to clear all enqueued but not yet executed timers,
+   * By keep track of scheduled timer Is,
+   * we will be able to clear enqueued but not yet executed timer,
    * and stop the virtualization process completely when needed.
    */
-  const timerIds = useRef<any[]>([]);
+  const timerId = useRef<any>(null);
 
   /**
    * A list of algorithm options
@@ -135,8 +137,19 @@ const Homepage = () => {
    */
   const [selectedDrawingItem, setSelectedDrawingItem] = useState<DrawingItem>('DRAWING_ITEM_WALL');
 
+  /**
+   * timerDelayValue: Timer delay value
+   * We use setTimeout to schedule state update,
+   * which will prevent the state update from being batched but enqueued (rendered) right away
+   */
+  const timerDelayValue = useRef(calculateDelayFromSpeed(INITIAL_SPEED));
+
   const handleSelectDrawingItem = useCallback((e) => {
     setSelectedDrawingItem(e.currentTarget.value);
+  }, []);
+
+  const handleSpeedChange = useCallback((speedValue: number) => {
+    timerDelayValue.current = calculateDelayFromSpeed(speedValue);
   }, []);
 
   /**
@@ -342,23 +355,22 @@ const Homepage = () => {
   const animateAlgorithm = useCallback(
     (visitedInOrder: GridLocation[]): Promise<void> =>
       new Promise<void>((resolve) => {
-        visitedInOrder.forEach(({ row: visitedRow, col: visitedCol }, index, array) => {
-          /**
-           * Use setTimeout to let state update be rendered instead of batched
-           */
-          const timerId = setTimeout(() => {
+        function recursiveFunc(array: GridLocation[], index: number, resolveFunc: () => void) {
+          if (index === array.length) {
+            resolveFunc();
+            return;
+          }
+          timerId.current = setTimeout(() => {
+            const { row: visitedRow, col: visitedCol } = array[index];
             setGridData((prevState) =>
               update(prevState, {
                 [visitedRow]: { [visitedCol]: { isVisited: { $set: true } } },
               }),
             );
-            if (index === array.length - 1) resolve();
-          }, 20 * index);
-          /**
-           * Keep track of enqueued timers
-           */
-          timerIds.current.push(timerId);
-        });
+            recursiveFunc(array, index + 1, resolveFunc);
+          }, timerDelayValue.current);
+        }
+        recursiveFunc(visitedInOrder, 0, resolve);
       }),
     [],
   );
@@ -370,23 +382,27 @@ const Homepage = () => {
     return new Promise<void>((resolve) => {
       if (paths.length === 0) resolve();
 
-      paths.forEach(({ row, col }, index, array) => {
-        /**
-         * Use setTimeout to let state update be rendered instead of batched
-         */
-        const timerId = setTimeout(() => {
+      function recursiveFunc(array: GridLocation[], index: number, resolveFunc: () => void) {
+        if (index === array.length) {
+          resolveFunc();
+          return;
+        }
+
+        timerId.current = setTimeout(() => {
+          /**
+           * Use setTimeout to let state update be rendered instead of batched
+           */
+          const { row: visitedRow, col: visitedCol } = array[index];
           setGridData((prevState) =>
             update(prevState, {
-              [row]: { [col]: { isPathStep: { $set: true } } },
+              [visitedRow]: { [visitedCol]: { isPathStep: { $set: true } } },
             }),
           );
-          if (index === array.length - 1) resolve();
-        }, 30 * index);
-        /**
-         * Keep track of enqueued timers
-         */
-        timerIds.current.push(timerId);
-      });
+          recursiveFunc(array, index + 1, resolveFunc);
+        }, timerDelayValue.current);
+      }
+
+      recursiveFunc(paths, 0, resolve);
     });
   }, []);
 
@@ -404,10 +420,7 @@ const Homepage = () => {
     );
 
     // Clear enqueued timeout events (if there's any)
-    if (timerIds.current.length !== 0) {
-      timerIds.current.forEach((timerId) => clearTimeout(timerId));
-      timerIds.current = [];
-    }
+    clearTimeout(timerId.current);
 
     setIsVirtualizing(false);
     isVirtualizationDone.current = false;
@@ -427,10 +440,7 @@ const Homepage = () => {
     );
 
     // Clear enqueued timeout events
-    if (timerIds.current.length !== 0) {
-      timerIds.current.forEach((timerId) => clearTimeout(timerId));
-      timerIds.current = [];
-    }
+    clearTimeout(timerId.current);
 
     setIsVirtualizing(false);
     isVirtualizationDone.current = false;
@@ -582,6 +592,7 @@ const Homepage = () => {
             selectedDrawingItem={selectedDrawingItem}
             onSelectDrawingItem={handleSelectDrawingItem}
             isVirtualizing={isVirtualizing}
+            onSpeedChange={handleSpeedChange}
           />
           <Spacer />
           <Legends />
