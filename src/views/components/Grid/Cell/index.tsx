@@ -188,6 +188,9 @@ const Cell = ({
       if (isDesert) {
         bgColor = 'orange.500';
         borderColor = 'orange.400';
+      } else if (isWall) {
+        borderColor = 'gray.800';
+        bgColor = 'gray.700';
       }
     }
     if (isPathStep && !isStart && !isEnd) {
@@ -196,6 +199,9 @@ const Cell = ({
       if (isDesert) {
         bgColor = 'yellow.500';
         borderColor = 'yellow.400';
+      } else if (isWall) {
+        borderColor = 'gray.800';
+        bgColor = 'gray.700';
       }
     }
   }

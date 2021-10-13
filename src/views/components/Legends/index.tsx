@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import { HStack, Box, Text, VStack } from '@chakra-ui/react';
 
 const Legends = () => {
@@ -45,4 +47,4 @@ const Legends = () => {
   );
 };
 
-export default Legends;
+export default memo(Legends);
