@@ -15,7 +15,7 @@ import {
 
 import { INITIAL_SPEED, MAX_SPEED, MIN_SPEED } from 'constants/speed';
 
-interface Props {
+export interface Props {
   selectedDrawingItem: string;
   onSelectDrawingItem: (event: SyntheticEvent) => void;
   onSpeedChange: (value: number) => void;
@@ -30,15 +30,18 @@ const FooterControls = ({
 }: Props): JSX.Element => {
   return (
     <Grid
-      templateRows="repeat(2, 1fr)"
-      templateColumns="repeat(3, 1fr)"
-      gap={4}
+      templateAreas={[
+        `'labelDrawingItem' 'inputDrawingItem' 'labelSpeed' 'inputSpeed'`,
+        `'labelDrawingItem inputDrawingItem inputDrawingItem' 'labelSpeed inputSpeed inputSpeed'`,
+      ]}
+      rowGap={4}
+      columnGap={[0, 4]}
       alignItems="center"
     >
-      <GridItem colSpan={1}>
+      <GridItem gridArea="labelDrawingItem">
         <Text fontWeight="600">Drawing item:</Text>
       </GridItem>
-      <GridItem colSpan={2}>
+      <GridItem gridArea="inputDrawingItem">
         <HStack>
           <Select
             w={60}
@@ -53,16 +56,17 @@ const FooterControls = ({
             ml={2}
             w={4}
             h={4}
+            flexShrink={0}
             borderWidth="1px"
             bgColor={selectedDrawingItem === 'DRAWING_ITEM_WALL' ? 'gray.800' : 'orange.400'}
             borderColor={selectedDrawingItem === 'DRAWING_ITEM_WALL' ? 'gray.700' : 'orange.300'}
           />
         </HStack>
       </GridItem>
-      <GridItem colSpan={1}>
+      <GridItem gridArea="labelSpeed">
         <Text fontWeight="600">Speed:</Text>
       </GridItem>
-      <GridItem colSpan={2}>
+      <GridItem gridArea="inputSpeed">
         <Slider
           colorScheme="cyan"
           aria-label="speed slider"

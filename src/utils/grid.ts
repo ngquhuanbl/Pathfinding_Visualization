@@ -8,7 +8,7 @@ export const isGridLocationInBound = (
   if (!location) return false;
 
   const { row, col } = location;
-  return row >= 0 && row < gridNCol && col >= 0 && col < gridNCol;
+  return row >= 0 && row < gridNRow && col >= 0 && col < gridNCol;
 };
 
 export const isGridLocationPassable = (location: GridLocation) => !location.isWall;

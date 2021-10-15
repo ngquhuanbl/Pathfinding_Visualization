@@ -142,7 +142,7 @@ const Cell = ({
 }: Props): JSX.Element => {
   /**
    * Order of animation keyframe priority:
-   * startOrEndKeyframe > pathStepKeyframe > desertVisitedKeyframe > visitedKeyframe
+   * startOrEndKeyframe > desertPathStepKeyframe > pathStepKeyframe > desertVisitedKeyframe > visitedKeyframe
    */
   let borderColor = 'blue.200';
   let bgColor = 'white';
@@ -162,6 +162,7 @@ const Cell = ({
   }
 
   let animation;
+
   if (isVisited) {
     if (isDesert) animation = `${desertVisitedKeyframe} 1 1.5s ease-out alternate forwards`;
     else animation = `${visitedKeyframe} 1 1.5s ease-out alternate forwards`;

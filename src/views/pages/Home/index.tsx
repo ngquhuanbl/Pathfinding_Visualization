@@ -1,15 +1,15 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 
-import { Box, Flex, Spacer, VStack } from '@chakra-ui/react';
+import { Box, Flex, VStack } from '@chakra-ui/react';
 import merge from 'deepmerge';
 import update from 'immutability-helper';
 
 import { ALGORITHMS, AlgorithmKey } from 'constants/algorithms';
 import {
-  INITIAL_END_COL,
-  INITIAL_END_ROW,
-  INITIAL_START_COL,
   INITIAL_START_ROW,
+  INITIAL_START_COL,
+  INITIAL_END_ROW,
+  INITIAL_END_COL,
   N_COL,
   N_ROW,
 } from 'constants/grid';
@@ -17,10 +17,9 @@ import { INITIAL_SPEED } from 'constants/speed';
 import GridLocation from 'utils/data-structures/location/GridLocation';
 import { calculateDelayFromSpeed } from 'utils/delay';
 import { pathConstruct } from 'utils/path-construct';
-import FooterControls from 'views/components/FooterControls';
+import Footer from 'views/components/Footer';
 import Grid from 'views/components/Grid';
-import HeaderControls, { AlgorithmOption } from 'views/components/HeaderControls';
-import Legends from 'views/components/Legends';
+import Header, { AlgorithmOption } from 'views/components/Header';
 
 export type DrawingAction = 'DRAWING_ACTION_ADD_ITEM' | 'DRAWING_ACTION_REMOVE_ITEM';
 export type DrawingItem = 'DRAWING_ITEM_WALL' | 'DRAWING_ITEM_DESERT';
@@ -259,17 +258,32 @@ const Homepage = () => {
         if (selectedDrawingItem === 'DRAWING_ITEM_DESERT' && isWall) return;
 
         const value = drawingAction === 'DRAWING_ACTION_ADD_ITEM';
-        const updatedKey = selectedDrawingItem === 'DRAWING_ITEM_WALL' ? 'isWall' : 'isDesert';
 
-        setGridData((oldGridData) =>
-          update(oldGridData, {
-            [row]: {
-              [col]: {
-                [updatedKey]: { $set: value },
+        if (selectedDrawingItem === 'DRAWING_ITEM_WALL')
+          setGridData((oldGridData) =>
+            update(oldGridData, {
+              [row]: {
+                [col]: {
+                  isWall: { $set: value },
+                  /**
+                   * Allow user to override a visited/path-step location with a wall
+                   */
+                  isVisited: { $set: false },
+                  isPathStep: { $set: false },
+                },
               },
-            },
-          }),
-        );
+            }),
+          );
+        else
+          setGridData((oldGridData) =>
+            update(oldGridData, {
+              [row]: {
+                [col]: {
+                  isDesert: { $set: value },
+                },
+              },
+            }),
+          );
       }
     },
     [selectedDrawingItem],
@@ -362,8 +376,8 @@ const Homepage = () => {
           }
           timerId.current = setTimeout(() => {
             const { row: visitedRow, col: visitedCol } = array[index];
-            setGridData((prevState) =>
-              update(prevState, {
+            setGridData((oldGridData) =>
+              update(oldGridData, {
                 [visitedRow]: { [visitedCol]: { isVisited: { $set: true } } },
               }),
             );
@@ -563,14 +577,84 @@ const Homepage = () => {
   );
 
   useEffect(() => {
+    /**
+     * Trigger instant preview when user modify the start/end location after a completed virtualization
+     */
     if (isVirtualizationDone.current) handleInstantPreview(startRow, startCol, endRow, endCol);
   }, [startRow, startCol, endRow, endCol, handleInstantPreview]);
 
+  /**
+   * Responsive feature
+   * When user resizes the browser window or the page is loaded on a small-screen device,
+   * we will:
+   * * Step 1: Stop any running virtualization process
+   * * Step 2: Resizing the grid to match the screen size
+   */
+  const handleWindowResize = useCallback(() => {
+    const screenWidth = document.documentElement.clientWidth;
+    const minWidthLargeScreen = N_COL * 24 + 32 * 2;
+
+    if (screenWidth < minWidthLargeScreen) {
+      /**
+       * Step 1: Stop any running virtualization process
+       */
+      // Clear enqueued timeout events
+      clearTimeout(timerId.current);
+
+      setIsVirtualizing(false);
+      isVirtualizationDone.current = false;
+
+      /**
+       * Step 2: Resizing the grid to match the screen size
+       */
+      const newGridWidth = screenWidth - 32 * 2;
+      const newNCol = Math.round(newGridWidth / 24);
+      const newStartCol = Math.floor(newNCol / 3);
+      const newEndCol = newNCol - newStartCol - 1;
+
+      setStartRow(INITIAL_START_ROW);
+      setStartCol(newStartCol);
+      setEndRow(INITIAL_END_ROW);
+      setEndCol(newEndCol);
+
+      setGridData(
+        Array.from({ length: N_ROW }, (_, row) =>
+          Array.from({ length: newNCol }, (__, col) => {
+            const isWall = false;
+            const isDesert = false;
+            const isVisited = false;
+            const isPathStep = false;
+            const isStart = row === INITIAL_START_ROW && col === newStartCol;
+            const isEnd = row === INITIAL_END_ROW && col === newEndCol;
+            return new GridLocation(
+              row,
+              col,
+              isWall,
+              isDesert,
+              isVisited,
+              isPathStep,
+              isStart,
+              isEnd,
+            );
+          }),
+        ),
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize);
+    handleWindowResize();
+    return () => {
+      window.removeEventListener('resize', handleWindowResize);
+    };
+  }, [handleWindowResize]);
+
   return (
-    <Flex height="100vh" alignItems="center" justifyContent="center">
-      <VStack>
+    <Flex minHeight="100vh" alignItems="center" justifyContent="center" padding={8}>
+      <VStack spacing={6}>
         <Box w="full">
-          <HeaderControls
+          <Header
             selectedAlgorithm={selectedAlgorithm}
             onSelectedAlgorithmChange={handleSelectAlgorithm}
             algorithmOptions={algorithmOptions}
@@ -587,16 +671,14 @@ const Homepage = () => {
           onMouseEnterOnCell={handleMouseEnterOnCell}
           onMouseUpOnCell={handleMouseUpOnCell}
         />
-        <Flex mt={6} w="full" alignItems="flex-start">
-          <FooterControls
+        <Box w="full">
+          <Footer
             selectedDrawingItem={selectedDrawingItem}
             onSelectDrawingItem={handleSelectDrawingItem}
             isVirtualizing={isVirtualizing}
             onSpeedChange={handleSpeedChange}
           />
-          <Spacer />
-          <Legends />
-        </Flex>
+        </Box>
       </VStack>
     </Flex>
   );
