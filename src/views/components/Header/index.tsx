@@ -16,9 +16,9 @@ interface Props {
   selectedAlgorithm: string;
   onSelectedAlgorithmChange: (event: SyntheticEvent) => void;
   isVirtualizing: boolean;
-  onStartVirtualization: () => void;
+  onStartVisualization: () => void;
   onDone: () => void;
-  onClearVirtualizationResults: () => void;
+  onClearVisualizationResults: () => void;
   onClearAll: () => void;
 }
 
@@ -26,9 +26,9 @@ const Header = ({
   selectedAlgorithm,
   onSelectedAlgorithmChange,
   isVirtualizing,
-  onStartVirtualization,
+  onStartVisualization,
   onDone,
-  onClearVirtualizationResults,
+  onClearVisualizationResults,
   onClearAll,
 }: Props) => {
   /**
@@ -66,7 +66,7 @@ const Header = ({
         </Select>
         <Button
           colorScheme="teal"
-          onClick={onStartVirtualization}
+          onClick={onStartVisualization}
           disabled={isVirtualizing}
           w={['full', 'full', 'unset']}
         >
@@ -88,12 +88,12 @@ const Header = ({
         <Button
           leftIcon={<DeleteIcon />}
           colorScheme="purple"
-          onClick={onClearVirtualizationResults}
+          onClick={onClearVisualizationResults}
         >
-          Clear virtualization results
+          Clear visualization results
         </Button>
         <Button leftIcon={<DeleteIcon />} colorScheme="red" onClick={onClearAll}>
-          <Text display={['none', 'block']}>Clear virtualization results + walls + desert</Text>
+          <Text display={['none', 'block']}>Clear visualization results + walls + desert</Text>
           <Text display={['block', 'none']}>Clear all</Text>
         </Button>
       </Stack>
