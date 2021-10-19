@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@chakra-ui/icons": "^1.0.15",
     "@chakra-ui/react": "^1.6.6",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
@@ -13,7 +14,9 @@
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "deepmerge": "^4.2.2",
     "framer-motion": "^4",
+    "immutability-helper": "^3.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
@@ -60,9 +63,13 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "husky": ">=6",
     "lint-staged": ">=10",
-    "prettier": "^2.3.2"
+    "prettier": "^2.3.2",
+    "typescript-plugin-css-modules": "^3.4.0"
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": "eslint --fix"
+    "*.{js,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   }
 }
