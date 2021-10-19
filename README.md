@@ -1,12 +1,12 @@
-# Pathfinding Virtualization
-- This project is inspired by [@clementmihailescu](https://github.com/clementmihailescu) and [@DevonCrawford](https://github.com/DevonCrawford). The idea of learning algorithms through virtualization interests me.
+# Pathfinding Visualization
+- This project is inspired by [@clementmihailescu](https://github.com/clementmihailescu) and [@DevonCrawford](https://github.com/DevonCrawford). The idea of learning algorithms through visualization interests me.
 - This project is built as my attempt to re-study pathfinding algorithms which were introduced in my university course briefly.
 - Despite the completion, this project isn't perfect and only plays as an individual approach of mine to the problem. I'm looking forward to getting feedback from other talented developers on how it can be improved both on performance and functionalities. Any star or review will be deeply appreciated. Thank you!
 ## "A demo is worth a thousand words"
 [Demo link](https://ngquhuanbl.github.io/Pathfinding_Visualization/)
 ## Technology
 ### ReactJS
-- I find ReactJS quite not-suitable for algorithm virtualization. Compared to Vanilla JS approach of @clementmihailescu and the @DevonCrawford's Java version, ReactJS virtualization is slower due to the extra cost for reconciliation before any UI change can be rendered.
+- I find ReactJS quite not-suitable for algorithm visualization. Compared to Vanilla JS approach of @clementmihailescu and the @DevonCrawford's Java version, ReactJS visualization is slower due to the extra cost for reconciliation before any UI change can be rendered.
 - Despite the above judgment, this project is built as an attempt to learn how to optimize ReactJS. The resulted app should perform at a good speed which might not be comparable to other approaches, but the best as it could (while satisfying all required functionalities).
   - Common optimizing methods that I used: update function in `setState()`, `useCallback()`, `useMemo()`, `React.memo()`
   - I also experiment with the use of mutable states (created by `useRef()`) instead of normal React states (created by `useState()`) at some part of the application as a performance improvement. Such action is only suitable for some states and must be considered carefully based on two characteristics:
@@ -52,10 +52,10 @@
 - Greedy Best First Search
 - A*
 ### Live-preview result
-After finished virtualization, any change in the start/end location will result in the instant pathfinding result matched with the new location of the start/end location
+After finished visualization, any change in the start/end location will result in the instant pathfinding result matched with the new location of the start/end location
 ![Live-preview result feature](src/assets/feature-live-preview.gif)
 ### Adjust animation speed
-Animation speed can be modified by using the speed slider. The speed change will be effective immediately (even if there's any running virtualization at the moment)
+Animation speed can be modified by using the speed slider. The speed change will be effective immediately (even if there's any running visualization at the moment)
 ![Speed adjustment feature](src/assets/feature-speed-modification.gif)
 ### Skip animation
 You can skip the animation and display the final result instead by clicking the Done button.
@@ -74,6 +74,6 @@ Maze generation helps you to save your time on drawing walls and desert manually
 2. Add/remove wall and desert (optional)
 3. Adjust the animation speed (optional)
 4. Generate maze (optional)
-5. Start the virtualization process by clicking the **Virtualize** button
+5. Start the visualization process by clicking the **Virtualize** button
 
 

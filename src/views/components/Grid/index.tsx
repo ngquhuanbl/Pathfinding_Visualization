@@ -38,7 +38,7 @@ const Grid = ({
   const handleMouseDownOnTheContainerOfAllCells = useCallback(
     (event: SyntheticEvent) => {
       /**
-       * If the virtualization process is running,
+       * If the visualization process is running,
        * prevent all attached events of all cells from happening
        * by stop the further propagation of the mouse events
        */
