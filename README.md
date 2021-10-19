@@ -1,32 +1,34 @@
 # Pathfinding Virtualization
-- This project is inspired by @clementmihailescu and @DevonCrawford. The idea of learning algorithms through virtualization really interests me.
+- This project is inspired by [@clementmihailescu](https://github.com/clementmihailescu) and [@DevonCrawford](https://github.com/DevonCrawford). The idea of learning algorithms through virtualization interests me.
 - This project is built as my attempt to re-study pathfinding algorithms which were introduced in my university course briefly.
-- Despite the completion, this project isn't perfect and only plays as an individual approach of mine to the problem. I'm looking forward to get feedbacks for other talented developers on how it can be improved both on performance and functionalities. Any star or review will be deeply appriciated. Thank you!
+- Despite the completion, this project isn't perfect and only plays as an individual approach of mine to the problem. I'm looking forward to getting feedback from other talented developers on how it can be improved both on performance and functionalities. Any star or review will be deeply appreciated. Thank you!
+## "A demo is worth a thousand words"
+[Demo link](https://ngquhuanbl.github.io/Pathfinding_Visualization/)
 ## Technology
 ### ReactJS
-- I find ReactJS quite not-suitable for algorithm virtualization. Compared to vanila JS approach of @clementmihailescu and the @DevonCrawford's Java version, ReactJS virtualization is slower due to the extra cost for reconciliation before any UI change can be rendered.
-- Despite of the above judgement, this project is built as an attempt to learn how to optimize ReactJS. The resulted app should perform at a good speed which might not be comparable to other approach; but the best as it could (while satistifying all required functionalities).
+- I find ReactJS quite not-suitable for algorithm virtualization. Compared to Vanilla JS approach of @clementmihailescu and the @DevonCrawford's Java version, ReactJS virtualization is slower due to the extra cost for reconciliation before any UI change can be rendered.
+- Despite the above judgment, this project is built as an attempt to learn how to optimize ReactJS. The resulted app should perform at a good speed which might not be comparable to other approaches, but the best as it could (while satisfying all required functionalities).
   - Common optimizing methods that I used: update function in `setState()`, `useCallback()`, `useMemo()`, `React.memo()`
-  - I also experiment the use of mutable state (created by `useRef()`) instead of normal React state (created by `useState()`) at some part of the application as a performance improvement. Such action is only suitable for some state and must be considered carefully based on two chacteristic:
-    - The state change won't required an UI render
+  - I also experiment with the use of mutable states (created by `useRef()`) instead of normal React states (created by `useState()`) at some part of the application as a performance improvement. Such action is only suitable for some states and must be considered carefully based on two characteristics:
+    - The state change won't require a UI render
     - The logic consuming/mutating the state will still be able to function probably if the state's consuming/mutating moment is affected by ReactJS batching behavior.
 ### Charka UI
-- This project was my first time of using this component library and it turned out to be pretty good. I spent less time writing UI code and the result is aesthetic. Highly recommended!
+- This project was my first time using this component library and it turned out to be pretty good. I spent less time writing UI code and the result is aesthetic. Highly recommended!
 ## Algorithms
 ### Pathfinding
-#### Breath First Search (BFS)
+#### Breadth First Search (BFS)
 - Unweighted graph
 - Explore equally in all directions
 #### Early Exit BFS
 - Unweighted graph
 - Explore equally in all directions
-- Stop the exploration as soon as we’ve found our goal instead of continue to cover the graph fully
+- Stop the exploration as soon as we’ve found our goal instead of continuing to cover the graph fully
 #### Dijkstra
 - Weighted graph
 - Explore equally in all directions
 - Take movement costs into account
   - Moving through plains might cost 1 move-point
-  - Moving through desert might cost 5 move-points
+  - Moving through the desert area might cost 5 move-points
 #### Greedy Best First Search
 - Unweighted graph
 - Explore towards the goal more than it expands in other directions
@@ -40,7 +42,7 @@
 #### Recursive division
 > Recommended recursive division post: [Recursive division in Wiki](https://en.wikipedia.org/wiki/Maze_generation_algorithm#:~:text=the%20current%20cell.-,Recursive%20division%20method,-%5Bedit%5D)
 #### Basic random
-- Randomly place walls on the grid at a resonable probability to ensure the grid's solvability.
+- Randomly place walls on the grid at a reasonable probability to ensure the grid's solvability.
 ## Features
 ### 5 pathfinding algorithms
 - BFS
@@ -49,7 +51,7 @@
 - Greedy Best First Search
 - A*
 ### Live-preview result
-After a finished virtualization, any change in the start/end location will result in the instant pathfinding result matched with the new location of the start/end location
+After finished virtualization, any change in the start/end location will result in the instant pathfinding result matched with the new location of the start/end location
 ![Live-preview result feature](src/assets/feature-live-preview.gif)
 ### Adjust animation speed
 Animation speed can be modified by using the speed slider. The speed change will be effective immediately (even if there's any running virtualization at the moment)
@@ -58,13 +60,13 @@ Animation speed can be modified by using the speed slider. The speed change will
 You can skip the animation and display the final result instead by clicking the Done button.
 ![Animation skipping feature](src/assets/feature-skip-animation.gif)
 ### Add/remove wall and desert
-Wall is impassable location and desert is heavily weighted location.<br/>You can add/remove wall/desert by drawing on the grid; hence wall and desert are called drawing item.<br />After selecting an drawing item,<br/>
-- **To add the item**: Start drawing on any location of different location type than the selected drawing item<br/>E.g. If you want to add walls, the first drawing location must be a non-wall one (such as plain/desert/visited location)
+Wall is an impassable location and desert is a heavily weighted location.<br/>You can add/remove wall/desert by drawing on the grid; hence wall and desert are called drawing items.<br />After selecting an drawing item,<br/>
+- **To add the item**: Start drawing on any location of a different location type than the selected drawing item<br/>E.g. If you want to add walls, the first drawing location must be a non-wall one (such as plain/desert/visited location)
 - **To remove the item**: Start drawing on any location of the same location type with the selected drawing item.<br />E.g. If you want to remove desert, the first drawing location must be a desert one.
 
 ![Add or remove wall and desert feature](src/assets/feature-drawing-wall-desert.gif)
 ### Maze generation
-Maze generation helps you to save your time on drawing wall and desert manually.
+Maze generation helps you to save your time on drawing walls and desert manually.
 ![Maze generation feature](src/assets/feature-maze-generation.gif)
 ## Instructions
 1. Select the pathfinding algorithm
