@@ -69,6 +69,9 @@ Wall is an impassable location and desert is a heavily weighted location.<br/>Yo
 ### Maze generation
 Maze generation helps you to save your time on drawing walls and desert manually.
 ![Maze generation feature](src/assets/feature-maze-generation.gif)
+### Responsive
+The app works on different screen sizes.
+![Responsive feature](src/assets/feature-responsive.gif)
 ## Instructions
 1. Select the pathfinding algorithm
 2. Add/remove wall and desert (optional)
