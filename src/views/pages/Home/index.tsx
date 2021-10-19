@@ -111,33 +111,33 @@ const Homepage = () => {
   }, [generateGridDataBasedOnScreensize]);
 
   /**
-   * isVirtualizing: A boolean state indicating if the virtualization process is running
+   * isVirtualizing: A boolean state indicating if the visualization process is running
    */
   const [isVirtualizing, setIsVirtualizing] = useState(false);
   /**
-   * isVirtualizationDone: A boolean state indicating if the virtualization process is done
+   * isVisualizationDone: A boolean state indicating if the visualization process is done
    * We implement this state using ref for below reasons:
    * - The state isn't used to trigger re-render but only for keeping track purpose
    * - Its consuming and mutating order have no dependencies on the state batching behavior of React
    * in order for related logic to work properly.
    * - The state is used along with startRow, startCol, endRow, endCol to determine whether an instant preview should occur.
-   * If a location changing happens on the start/end location after a completed virtualization process and the board is dirty with the result,
+   * If a location changing happens on the start/end location after a completed visualization process and the board is dirty with the result,
    * an instant preview will be occur.
-   * Watching the change of the start/end coordinations plus the isVirtualizationDone status by useEffect is our go-to.
-   * However, if isVirtualizationDone is implemented using useState, the effect will run immerdiately after a finished virtualization
+   * Watching the change of the start/end coordinations plus the isVisualizationDone status by useEffect is our go-to.
+   * However, if isVisualizationDone is implemented using useState, the effect will run immerdiately after a finished visualization
    * (although there's no modification in location of the start/end location).
    * On the other hand, this undesired consequence also stop the animation before its completion as the instant preview is triggered
-   * as long as the isVirtualizationDone is true.
+   * as long as the isVisualizationDone is true.
    * Since the instant preview discard all animation and uses only direct stylings.
    * When the instant preview is triggered before the completion of the animation, the animation will be stop in the middle of its work.
    */
-  const isVirtualizationDone = useRef(false);
+  const isVisualizationDone = useRef(false);
 
   /**
-   * The virtualization process uses setTimeout to schedule UI state update
+   * The visualization process uses setTimeout to schedule UI state update
    * By keep track of scheduled timer Is,
    * we will be able to clear enqueued but not yet executed timer,
-   * and stop the virtualization process completely when needed.
+   * and stop the visualization process completely when needed.
    */
   const timerId = useRef<NodeJS.Timeout | null>(null);
 
@@ -426,7 +426,7 @@ const Homepage = () => {
           /**
            * Skip the whole animation if user click the Done button
            */
-          if (isVirtualizationDone.current) {
+          if (isVisualizationDone.current) {
             setGridData((oldGridData) => {
               let newGridData = update(oldGridData, {});
               let i = index;
@@ -481,7 +481,7 @@ const Homepage = () => {
         /**
          * Skip the whole animation if user click the Done button
          */
-        if (isVirtualizationDone.current) {
+        if (isVisualizationDone.current) {
           setGridData((oldGridData) => {
             let newGridData = update(oldGridData, {});
             let i = index;
@@ -522,10 +522,10 @@ const Homepage = () => {
   }, []);
 
   /**
-   * Stop the virtualization process
+   * Stop the visualization process
    * by clear the timer and update process status
    */
-  const stopVirtualization = useCallback(() => {
+  const stopVisualization = useCallback(() => {
     // Clear enqueued timeout events
     if (timerId.current !== null) {
       clearTimeout(timerId.current);
@@ -533,14 +533,14 @@ const Homepage = () => {
     }
 
     setIsVirtualizing(false);
-    isVirtualizationDone.current = false;
+    isVisualizationDone.current = false;
   }, []);
 
   /**
    * Clear only virtualized data
    */
-  const handleClearVirtualizationResults = useCallback(() => {
-    stopVirtualization();
+  const handleClearVisualizationResults = useCallback(() => {
+    stopVisualization();
 
     setGridData((oldGridData) =>
       oldGridData.map((rowData) =>
@@ -550,13 +550,13 @@ const Homepage = () => {
         ),
       ),
     );
-  }, [stopVirtualization]);
+  }, [stopVisualization]);
 
   /**
    * Clear all (virtualized data + walls)
    */
   const handleClearAll = useCallback(() => {
-    stopVirtualization();
+    stopVisualization();
 
     setGridData((oldGridData) =>
       oldGridData.map((rowData) =>
@@ -566,13 +566,13 @@ const Homepage = () => {
         ),
       ),
     );
-  }, [stopVirtualization]);
+  }, [stopVisualization]);
 
   /**
-   * Start the virtualization process
+   * Start the visualization process
    */
-  const handleStartVirtualization = async () => {
-    handleClearVirtualizationResults();
+  const handleStartVisualization = async () => {
+    handleClearVisualizationResults();
 
     setIsVirtualizing(true);
 
@@ -610,11 +610,11 @@ const Homepage = () => {
     await animatePathConstruct(paths);
 
     setIsVirtualizing(false);
-    isVirtualizationDone.current = true;
+    isVisualizationDone.current = true;
   };
 
   /**
-   * After a completed virtualization process,
+   * After a completed visualization process,
    * if user change the start or end location,
    * the grid will show the path-finding result corresponding with the new start/end location instantly without animation
    */
@@ -686,23 +686,23 @@ const Homepage = () => {
 
   useEffect(() => {
     /**
-     * Trigger instant preview when user modify the start/end location after a completed virtualization
+     * Trigger instant preview when user modify the start/end location after a completed visualization
      */
-    if (isVirtualizationDone.current) handleInstantPreview(startRow, startCol, endRow, endCol);
+    if (isVisualizationDone.current) handleInstantPreview(startRow, startCol, endRow, endCol);
   }, [startRow, startCol, endRow, endCol, handleInstantPreview]);
 
   /**
    * Responsive feature
    * When user resizes the browser window or the page is loaded on a small-screen device,
    * we will:
-   * * Step 1: Stop any running virtualization process
+   * * Step 1: Stop any running visualization process
    * * Step 2: Resizing the grid to match the screen size
    */
   const handleWindowResize = useCallback(() => {
-    stopVirtualization();
+    stopVisualization();
 
     generateGridDataBasedOnScreensize();
-  }, [stopVirtualization, generateGridDataBasedOnScreensize]);
+  }, [stopVisualization, generateGridDataBasedOnScreensize]);
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize);
@@ -712,7 +712,7 @@ const Homepage = () => {
   }, [handleWindowResize]);
 
   const handleDone = useCallback(() => {
-    isVirtualizationDone.current = true;
+    isVisualizationDone.current = true;
   }, []);
 
   const [selectedMazePattern, setSelectedMazePattern] = useState<MazeGenerationAlgorithmKey>(
@@ -747,9 +747,9 @@ const Homepage = () => {
             selectedAlgorithm={selectedAlgorithm}
             onSelectedAlgorithmChange={handleSelectAlgorithm}
             isVirtualizing={isVirtualizing}
-            onStartVirtualization={handleStartVirtualization}
+            onStartVisualization={handleStartVisualization}
             onDone={handleDone}
-            onClearVirtualizationResults={handleClearVirtualizationResults}
+            onClearVisualizationResults={handleClearVisualizationResults}
             onClearAll={handleClearAll}
           />
         </Box>
