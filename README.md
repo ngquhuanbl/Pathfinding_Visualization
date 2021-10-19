@@ -37,10 +37,11 @@
 - Weighted graph
 - Explore towards the goal more than it expands in other directions
 - **Dijkstra’s Algorithm** works well to find the shortest path, but it wastes time exploring in directions that aren’t promising.<br/>**Greedy Best First Search** explores in promising directions but it may not find the shortest path.<br/>→ **A\* algorithm** is the best of both worlds. It uses both **the actual distance from the start (from Dijkstra's algorithm)**  and **the estimated distance to the goal (from the Greedy Best First Search).**
-> Recommended pathfinding algorithm article: [Introduction to the A* Algorithm by Red Blob Games](https://www.redblobgames.com/pathfinding/a-star/introduction.html)
+
+**Recommended pathfinding algorithm article**: [Introduction to the A* Algorithm by Red Blob Games](https://www.redblobgames.com/pathfinding/a-star/introduction.html)
 ### Maze generation
 #### Recursive division
-> Recommended recursive division post: [Recursive division in Wiki](https://en.wikipedia.org/wiki/Maze_generation_algorithm#:~:text=the%20current%20cell.-,Recursive%20division%20method,-%5Bedit%5D)
+- Recommended recursive division post: [Recursive division in Wiki](https://en.wikipedia.org/wiki/Maze_generation_algorithm#:~:text=the%20current%20cell.-,Recursive%20division%20method,-%5Bedit%5D)
 #### Basic random
 - Randomly place walls on the grid at a reasonable probability to ensure the grid's solvability.
 ## Features
