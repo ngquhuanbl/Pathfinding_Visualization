@@ -1,7 +1,8 @@
-import { SyntheticEvent, memo } from 'react';
+import { SyntheticEvent, memo, useMemo } from 'react';
 
 import {
   Box,
+  Button,
   Grid,
   GridItem,
   HStack,
@@ -10,9 +11,12 @@ import {
   SliderFilledTrack,
   SliderThumb,
   SliderTrack,
+  Stack,
   Text,
 } from '@chakra-ui/react';
 
+import { MAZE_GENERATION_ALGORITHMS } from 'constants/algorithms/maze-generation';
+import { DRAWING_ITEM_DESERT, DRAWING_ITEM_WALL } from 'constants/drawing';
 import { INITIAL_SPEED, MAX_SPEED, MIN_SPEED } from 'constants/speed';
 
 export interface Props {
@@ -20,6 +24,9 @@ export interface Props {
   onSelectDrawingItem: (event: SyntheticEvent) => void;
   onSpeedChange: (value: number) => void;
   isVirtualizing: boolean;
+  selectedMazePattern: string;
+  onSelectMazePattern: (event: SyntheticEvent) => void;
+  onApplyMazePattern: () => void;
 }
 
 const FooterControls = ({
@@ -27,30 +34,44 @@ const FooterControls = ({
   onSelectDrawingItem,
   onSpeedChange,
   isVirtualizing,
+  selectedMazePattern,
+  onSelectMazePattern,
+  onApplyMazePattern,
 }: Props): JSX.Element => {
+  const mazeGeneratonAlgorithmOptions = useMemo(
+    () =>
+      Object.entries(MAZE_GENERATION_ALGORITHMS).map(([key, { label }]) => (
+        <option key={key} value={key}>
+          {label}
+        </option>
+      )),
+    [],
+  );
   return (
     <Grid
       templateAreas={[
-        `'labelDrawingItem' 'inputDrawingItem' 'labelSpeed' 'inputSpeed'`,
-        `'labelDrawingItem inputDrawingItem inputDrawingItem' 'labelSpeed inputSpeed inputSpeed'`,
+        `'drawingItemLabel' 'drawingItemInput' 'speedLabel' 'speedInput' 'mazeLabel' 'mazeInput'`,
+        `'drawingItemLabel drawingItemInput drawingItemInput' 'speedLabel speedInput speedInput' 'mazeLabel mazeInput mazeInput'`,
       ]}
       rowGap={4}
       columnGap={[0, 4]}
       alignItems="center"
+      textAlign={['center', 'left']}
+      w={['full', 'unset']}
     >
-      <GridItem gridArea="labelDrawingItem">
+      <GridItem gridArea="drawingItemLabel">
         <Text fontWeight="600">Drawing item:</Text>
       </GridItem>
-      <GridItem gridArea="inputDrawingItem">
+      <GridItem gridArea="drawingItemInput">
         <HStack>
           <Select
-            w={60}
+            w={['full', 60]}
             value={selectedDrawingItem}
             disabled={isVirtualizing}
             onChange={onSelectDrawingItem}
           >
-            <option value="DRAWING_ITEM_WALL">Wall</option>
-            <option value="DRAWING_ITEM_DESERT">Desert</option>
+            <option value={DRAWING_ITEM_WALL}>Wall</option>
+            <option value={DRAWING_ITEM_DESERT}>Desert</option>
           </Select>
           <Box
             ml={2}
@@ -63,10 +84,10 @@ const FooterControls = ({
           />
         </HStack>
       </GridItem>
-      <GridItem gridArea="labelSpeed">
+      <GridItem gridArea="speedLabel">
         <Text fontWeight="600">Speed:</Text>
       </GridItem>
-      <GridItem gridArea="inputSpeed">
+      <GridItem gridArea="speedInput">
         <Slider
           colorScheme="cyan"
           aria-label="speed slider"
@@ -81,6 +102,24 @@ const FooterControls = ({
           </SliderTrack>
           <SliderThumb boxSize={6} />
         </Slider>
+      </GridItem>
+      <GridItem gridArea="mazeLabel">
+        <Text fontWeight="600">Maze pattern:</Text>
+      </GridItem>
+      <GridItem gridArea="mazeInput">
+        <Stack direction={['column', 'row']}>
+          <Select
+            w={['full', 60]}
+            value={selectedMazePattern}
+            disabled={isVirtualizing}
+            onChange={onSelectMazePattern}
+          >
+            {mazeGeneratonAlgorithmOptions}
+          </Select>
+          <Button colorScheme="gray" onClick={onApplyMazePattern}>
+            Apply
+          </Button>
+        </Stack>
       </GridItem>
     </Grid>
   );
