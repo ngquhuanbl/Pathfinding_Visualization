@@ -1,46 +1,76 @@
-# Getting Started with Create React App
+# Pathfinding Virtualization
+- This project is inspired by @clementmihailescu and @DevonCrawford. The idea of learning algorithms through virtualization really interests me.
+- This project is built as my attempt to re-study pathfinding algorithms which were introduced in my university course briefly.
+- Despite the completion, this project isn't perfect and only plays as an individual approach of mine to the problem. I'm looking forward to get feedbacks for other talented developers on how it can be improved both on performance and functionalities. Any star or review will be deeply appriciated. Thank you!
+## Technology
+### ReactJS
+- I find ReactJS quite not-suitable for algorithm virtualization. Compared to vanila JS approach of @clementmihailescu and the @DevonCrawford's Java version, ReactJS virtualization is slower due to the extra cost for reconciliation before any UI change can be rendered.
+- Despite of the above judgement, this project is built as an attempt to learn how to optimize ReactJS. The resulted app should perform at a good speed which might not be comparable to other approach; but the best as it could (while satistifying all required functionalities).
+  - Common optimizing methods that I used: update function in `setState()`, `useCallback()`, `useMemo()`, `React.memo()`
+  - I also experiment the use of mutable state (created by `useRef()`) instead of normal React state (created by `useState()`) at some part of the application as a performance improvement. Such action is only suitable for some state and must be considered carefully based on two chacteristic:
+    - The state change won't required an UI render
+    - The logic consuming/mutating the state will still be able to function probably if the state's consuming/mutating moment is affected by ReactJS batching behavior.
+### Charka UI
+- This project was my first time of using this component library and it turned out to be pretty good. I spent less time writing UI code and the result is aesthetic. Highly recommended!
+## Algorithms
+### Pathfinding
+#### Breath First Search (BFS)
+- Unweighted graph
+- Explore equally in all directions
+#### Early Exit BFS
+- Unweighted graph
+- Explore equally in all directions
+- Stop the exploration as soon as we’ve found our goal instead of continue to cover the graph fully
+#### Dijkstra
+- Weighted graph
+- Explore equally in all directions
+- Take movement costs into account
+  - Moving through plains might cost 1 move-point
+  - Moving through desert might cost 5 move-points
+#### Greedy Best First Search
+- Unweighted graph
+- Explore towards the goal more than it expands in other directions
+- In **Dijkstra’s Algorithm** we used the actual distance from the start for the priority queue ordering.<br/>In **Greedy Best First Search**, we’ll use the estimated distance to the goal for the priority queue ordering.
+#### A*
+- Weighted graph
+- Explore towards the goal more than it expands in other directions
+- **Dijkstra’s Algorithm** works well to find the shortest path, but it wastes time exploring in directions that aren’t promising.<br/>**Greedy Best First Search** explores in promising directions but it may not find the shortest path.<br/>→ **A\* algorithm** is the best of both worlds. It uses both **the actual distance from the start (from Dijkstra's algorithm)**  and **the estimated distance to the goal (from the Greedy Best First Search).**
+> Recommended pathfinding algorithm article: [Introduction to the A* Algorithm by Red Blob Games](https://www.redblobgames.com/pathfinding/a-star/introduction.html)
+### Maze generation
+#### Recursive division
+> Recommended recursive division post: [Recursive division in Wiki](https://en.wikipedia.org/wiki/Maze_generation_algorithm#:~:text=the%20current%20cell.-,Recursive%20division%20method,-%5Bedit%5D)
+#### Basic random
+- Randomly place walls on the grid at a resonable probability to ensure the grid's solvability.
+## Features
+### 5 pathfinding algorithms
+- BFS
+- Early exit BFS
+- Dijkstra
+- Greedy Best First Search
+- A*
+### Live-preview result
+After a finished virtualization, any change in the start/end location will result in the instant pathfinding result matched with the new location of the start/end location
+![Live-preview result feature](src/assets/feature-live-preview.gif)
+### Adjust animation speed
+Animation speed can be modified by using the speed slider. The speed change will be effective immediately (even if there's any running virtualization at the moment)
+![Speed adjustment feature](src/assets/feature-speed-modification.gif)
+### Skip animation
+You can skip the animation and display the final result instead by clicking the Done button.
+![Animation skipping feature](src/assets/feature-skip-animation.gif)
+### Add/remove wall and desert
+Wall is impassable location and desert is heavily weighted location.<br/>You can add/remove wall/desert by drawing on the grid; hence wall and desert are called drawing item.<br />After selecting an drawing item,<br/>
+- **To add the item**: Start drawing on any location of different location type than the selected drawing item<br/>E.g. If you want to add walls, the first drawing location must be a non-wall one (such as plain/desert/visited location)
+- **To remove the item**: Start drawing on any location of the same location type with the selected drawing item.<br />E.g. If you want to remove desert, the first drawing location must be a desert one.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+![Add or remove wall and desert feature](src/assets/feature-drawing-wall-desert.gif)
+### Maze generation
+Maze generation helps you to save your time on drawing wall and desert manually.
+![Maze generation feature](src/assets/feature-maze-generation.gif)
+## Instructions
+1. Select the pathfinding algorithm
+2. Add/remove wall and desert (optional)
+3. Adjust the animation speed (optional)
+4. Generate maze (optional)
+5. Start the virtualization process by clicking the **Virtualize** button
 
-## Available Scripts
 
-In the project directory, you can run:
-
-### `yarn start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).

@@ -2,7 +2,12 @@ import * as pathFindingAlgorithms from 'utils/algorithms/path-finding';
 import { CameFrom } from 'utils/algorithms/path-finding/types';
 import GridLocation from 'utils/data-structures/location/GridLocation';
 
-export type PathFindingAlgorithmKey = 'BFS' | 'BFS_EARLY_EXIT' | 'DIJKSTRA' | 'A_STAR';
+export type PathFindingAlgorithmKey =
+  | 'BFS'
+  | 'EARLY_EXIT_BFS'
+  | 'GREEDY_BEST_FIRST_SEARCH'
+  | 'DIJKSTRA'
+  | 'A_STAR';
 
 export type PathFindingAlgorithms = Record<
   PathFindingAlgorithmKey,
@@ -28,13 +33,17 @@ export const PATH_FINDING_ALGORITHMS: PathFindingAlgorithms = {
     label: 'BFS',
     execute: pathFindingAlgorithms.bfs,
   },
-  BFS_EARLY_EXIT: {
-    label: 'BFS Early Exit',
+  EARLY_EXIT_BFS: {
+    label: 'Early Exit BFS',
     execute: pathFindingAlgorithms.bfsEarlyExit,
   },
   DIJKSTRA: {
     label: 'Dijkstra',
     execute: pathFindingAlgorithms.dijkstra,
+  },
+  GREEDY_BEST_FIRST_SEARCH: {
+    label: 'Greedy Best First Search',
+    execute: pathFindingAlgorithms.greedyBestFirstSearch,
   },
   A_STAR: {
     label: 'A *',

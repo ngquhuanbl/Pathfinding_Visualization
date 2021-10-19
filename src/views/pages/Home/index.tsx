@@ -41,33 +41,16 @@ const Homepage = () => {
    * gridData: The state of the grid's UI at a particular point of time
    * It is usable by ReactJS to render the desired UI
    */
-  // const [gridData, setGridData] = useState<GridLocation[][]>(
-  //   Array.from({ length: N_ROW }, (_, row) =>
-  //     Array.from({ length: N_COL }, (__, col) => {
-  //       const isWall = false;
-  //       const isDesert = false;
-  //       const isVisited = false;
-  //       const isPathStep = false;
-  //       const isStart = row === INITIAL_START_ROW && col === INITIAL_START_COL;
-  //       const isEnd = row === INITIAL_END_ROW && col === INITIAL_END_COL;
-  //       return new GridLocation(row, col, isWall, isDesert, isVisited, isPathStep, isStart, isEnd);
-  //     }),
-  //   ),
-  // );
   const [gridData, setGridData] = useState<GridLocation[][]>([]);
 
   /**
    * startLocation: The starting grid location
    */
-  // const [startRow, setStartRow] = useState(INITIAL_START_ROW);
-  // const [startCol, setStartCol] = useState(INITIAL_START_COL);
   const [startRow, setStartRow] = useState(-1);
   const [startCol, setStartCol] = useState(-1);
   /**
-   * eNdLocation: The ending grid location
+   * endLocation: The ending grid location
    */
-  // const [endRow, setEndRow] = useState(INITIAL_END_ROW);
-  // const [endCol, setEndCol] = useState(INITIAL_END_COL);
   const [endRow, setEndRow] = useState(-1);
   const [endCol, setEndCol] = useState(-1);
 
