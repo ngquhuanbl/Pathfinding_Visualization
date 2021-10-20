@@ -20,21 +20,17 @@ import {
   DRAWING_ITEM_DESERT,
   DRAWING_ITEM_WALL,
 } from 'constants/drawing';
-import {
-  // INITIAL_START_ROW,
-  // INITIAL_START_COL,
-  // INITIAL_END_ROW,
-  // INITIAL_END_COL,
-  // N_COL,
-  N_ROW,
-} from 'constants/grid';
+import { N_ROW } from 'constants/grid';
+import { LOCAL_STORAGE_KEY_ONBOARDING_TIME } from 'constants/local-storage';
 import { INITIAL_SPEED } from 'constants/speed';
 import GridLocation from 'utils/data-structures/location/GridLocation';
 import { calculateDelayFromSpeed } from 'utils/delay';
+import { isMobileOrTabletDevice } from 'utils/device-checking';
 import { pathConstruct } from 'utils/path-construct';
 import Footer from 'views/components/Footer';
 import Grid from 'views/components/Grid';
 import Header from 'views/components/Header';
+import OnboardingModal from 'views/components/OnboardingModal';
 
 const Homepage = () => {
   /**
@@ -200,137 +196,93 @@ const Homepage = () => {
   /**
    * Update start location
    */
-  const handleChangeStartLocation = useCallback(
-    (
-      newStartRow: number,
-      newStartCol: number,
-      isStart: boolean,
-      isEnd: boolean,
-      isWall: boolean,
-    ) => {
-      /**
-       * A new location for start
-       * must not be ones that has already been occupied by a wall or the end location
-       */
-      if (!isEnd && !isWall)
-        setStartRow((oldStartRow) => {
-          setStartCol((oldStartCol) => {
-            setGridData((oldGridData) =>
-              update(
-                oldGridData,
-                /**
-                 * Use deep merge to create the update object config
-                 * Normal object destructuring will potentially overide properties
-                 * since it's possible for oldStartRow and newStartRow to share the same value
-                 * (such scenario can happen to oldStartCol and newStartCol to)
-                 */
-                merge(
-                  {
-                    [oldStartRow]: { [oldStartCol]: { isStart: { $set: false } } },
-                  },
-                  { [newStartRow]: { [newStartCol]: { isStart: { $set: true } } } },
-                ),
-              ),
-            );
-            return newStartCol;
-          });
-          return newStartRow;
-        });
-    },
-    [],
-  );
+  const handleChangeStartLocation = useCallback((newStartRow: number, newStartCol: number) => {
+    setStartRow((oldStartRow) => {
+      setStartCol((oldStartCol) => {
+        setGridData((oldGridData) =>
+          update(
+            oldGridData,
+            /**
+             * Use deep merge to create the update object config
+             * Normal object destructuring will potentially overide properties
+             * since it's possible for oldStartRow and newStartRow to share the same value
+             * (such scenario can happen to oldStartCol and newStartCol to)
+             */
+            merge(
+              {
+                [oldStartRow]: { [oldStartCol]: { isStart: { $set: false } } },
+              },
+              { [newStartRow]: { [newStartCol]: { isStart: { $set: true } } } },
+            ),
+          ),
+        );
+        return newStartCol;
+      });
+      return newStartRow;
+    });
+  }, []);
 
   /**
    * Update end location
    */
-  const handleChangeEndLocation = useCallback(
-    (newEndRow: number, newEndCol: number, isStart: boolean, isEnd: boolean, isWall: boolean) => {
-      /**
-       * A new location for start
-       * must not be ones that has already been occupied by a wall or the start location
-       */
-      if (!isStart && !isWall)
-        setEndRow((oldEndRow) => {
-          setEndCol((oldEndCol) => {
-            setGridData((oldGridData) =>
-              update(
-                oldGridData,
-                /**
-                 * Use deep merge to create the update object config
-                 * Normal object destructuring will potentially overide properties
-                 * since it's possible for oldStartRow and newStartRow to share the same value
-                 * (such scenario can happen to oldStartCol and newStartCol too)
-                 */
-                merge(
-                  {
-                    [oldEndRow]: { [oldEndCol]: { isEnd: { $set: false } } },
-                  },
-                  { [newEndRow]: { [newEndCol]: { isEnd: { $set: true } } } },
-                ),
-              ),
-            );
-            return newEndCol;
-          });
-          return newEndRow;
-        });
-    },
-    [],
-  );
+  const handleChangeEndLocation = useCallback((newEndRow: number, newEndCol: number) => {
+    setEndRow((oldEndRow) => {
+      setEndCol((oldEndCol) => {
+        setGridData((oldGridData) =>
+          update(
+            oldGridData,
+            /**
+             * Use deep merge to create the update object config
+             * Normal object destructuring will potentially overide properties
+             * since it's possible for oldStartRow and newStartRow to share the same value
+             * (such scenario can happen to oldStartCol and newStartCol too)
+             */
+            merge(
+              {
+                [oldEndRow]: { [oldEndCol]: { isEnd: { $set: false } } },
+              },
+              { [newEndRow]: { [newEndCol]: { isEnd: { $set: true } } } },
+            ),
+          ),
+        );
+        return newEndCol;
+      });
+      return newEndRow;
+    });
+  }, []);
 
   /**
    * User can perform drawing action on the grid to create/remove a wall or a desert area
    */
   const handleDrawing = useCallback(
-    (
-      row: number,
-      col: number,
-      isStart: boolean,
-      isEnd: boolean,
-      isWall: boolean,
-      isDesert: boolean,
-      drawingAction: DrawingAction,
-    ) => {
-      /**
-       * Prevent user to draw onto the start and end location
-       */
-      if (!isStart && !isEnd) {
-        /**
-         * Prevent user to draw a wall on a desert location
-         */
-        if (selectedDrawingItem === DRAWING_ITEM_WALL && isDesert) return;
-        /**
-         * Prevent user to draw a desert area on a wall location
-         */
-        if (selectedDrawingItem === DRAWING_ITEM_DESERT && isWall) return;
+    (row: number, col: number, drawingAction: DrawingAction) => {
+      const value = drawingAction === DRAWING_ACTION_ADD_ITEM;
 
-        const value = drawingAction === DRAWING_ACTION_ADD_ITEM;
-
-        if (selectedDrawingItem === DRAWING_ITEM_WALL)
-          setGridData((oldGridData) =>
-            update(oldGridData, {
-              [row]: {
-                [col]: {
-                  isWall: { $set: value },
-                  /**
-                   * Allow user to override a visited/path-step location with a wall
-                   */
-                  isVisited: { $set: false },
-                  isPathStep: { $set: false },
-                },
+      if (selectedDrawingItem === DRAWING_ITEM_WALL)
+        setGridData((oldGridData) =>
+          update(oldGridData, {
+            [row]: {
+              [col]: {
+                isWall: { $set: value },
+                /**
+                 * Allow user to override a visited/path-step location with a wall
+                 */
+                isVisited: { $set: false },
+                isPathStep: { $set: false },
               },
-            }),
-          );
-        else
-          setGridData((oldGridData) =>
-            update(oldGridData, {
-              [row]: {
-                [col]: {
-                  isDesert: { $set: value },
-                },
+            },
+          }),
+        );
+      else
+        setGridData((oldGridData) =>
+          update(oldGridData, {
+            [row]: {
+              [col]: {
+                isDesert: { $set: value },
               },
-            }),
-          );
-      }
+            },
+          }),
+        );
     },
     [selectedDrawingItem],
   );
@@ -347,6 +299,45 @@ const Homepage = () => {
       isWall: boolean,
       isDesert: boolean,
     ) => {
+      /**
+       * Mobile
+       */
+      if (isMobileOrTabletDevice()) {
+        /**
+         * On mobile/tablet device, user can't perform drag & drop action to
+         * move the start/end location
+         * In such situation, we offer an alternative method for user to move the start/end location:
+         * Step 1: Touch the start or end location that need to be moved
+         * Step 2: Touch the intented destination location
+         * The below logic is to handle the step 2
+         */
+        if (isChangingStartLocation.current) {
+          /**
+           * A new location for start
+           * must not be ones that has already been occupied by a wall or the end location
+           */
+          if (!isEnd && !isWall) {
+            handleChangeStartLocation(row, col);
+            isChangingStartLocation.current = false;
+          }
+          return;
+        }
+        if (isChangingEndLocation.current) {
+          /**
+           * A new location for end
+           * must not be ones that has already been occupied by a wall or the start location
+           */
+          if (!isStart && !isWall) {
+            handleChangeEndLocation(row, col);
+            isChangingEndLocation.current = false;
+          }
+          return;
+        }
+      }
+
+      /**
+       * Desktop
+       */
       if (isStart) {
         isChangingStartLocation.current = true;
       } else if (isEnd) {
@@ -368,13 +359,23 @@ const Homepage = () => {
           drawingAction = DRAWING_ACTION_REMOVE_ITEM;
         }
         setCurrentDrawingAction(drawingAction);
+
+        /**
+         * Prevent user to draw a wall on a desert location
+         */
+        if (selectedDrawingItem === DRAWING_ITEM_WALL && isDesert) return;
+        /**
+         * Prevent user to draw a desert area on a wall location
+         */
+        if (selectedDrawingItem === DRAWING_ITEM_DESERT && isWall) return;
         /**
          * Apply the drawing action on the mousedown cell.
          */
-        handleDrawing(row, col, isStart, isEnd, isWall, isDesert, drawingAction);
+
+        handleDrawing(row, col, drawingAction);
       }
     },
-    [handleDrawing, selectedDrawingItem],
+    [handleDrawing, selectedDrawingItem, handleChangeStartLocation, handleChangeEndLocation],
   );
 
   /**
@@ -387,23 +388,71 @@ const Homepage = () => {
       isStart: boolean,
       isEnd: boolean,
       isWall: boolean,
-      isForest: boolean,
+      isDesert: boolean,
     ) => {
+      /**
+       * Mobile
+       */
+      if (isMobileOrTabletDevice()) {
+        return;
+      }
+
+      /**
+       * Desktop
+       */
       if (isChangingStartLocation.current) {
-        handleChangeStartLocation(row, col, isStart, isEnd, isWall);
+        /**
+         * A new location for start
+         * must not be ones that has already been occupied by a wall or the end location
+         */
+        if (!isEnd && !isWall) handleChangeStartLocation(row, col);
       } else if (isChangingEndLocation.current) {
-        handleChangeEndLocation(row, col, isStart, isEnd, isWall);
+        /**
+         * A new location for end
+         * must not be ones that has already been occupied by a wall or the start location
+         */
+        if (!isStart && !isWall) handleChangeEndLocation(row, col);
       } else if (isDrawing.current) {
-        handleDrawing(row, col, isStart, isEnd, isWall, isForest, currentDrawingAction);
+        /**
+         * Prevent user to draw onto the start and end location
+         */
+        if (!isStart && !isEnd) {
+          /**
+           * Prevent user to draw a wall on a desert location
+           */
+          if (selectedDrawingItem === DRAWING_ITEM_WALL && isDesert) return;
+          /**
+           * Prevent user to draw a desert area on a wall location
+           */
+          if (selectedDrawingItem === DRAWING_ITEM_DESERT && isWall) return;
+          handleDrawing(row, col, currentDrawingAction);
+        }
       }
     },
-    [handleChangeStartLocation, handleChangeEndLocation, handleDrawing, currentDrawingAction],
+    [
+      handleChangeStartLocation,
+      handleChangeEndLocation,
+      handleDrawing,
+      currentDrawingAction,
+      selectedDrawingItem,
+    ],
   );
 
   /**
    * Handle mouseenet event on a cell
    */
   const handleMouseUpOnCell = useCallback(() => {
+    /**
+     * Mobile
+     */
+    if (isMobileOrTabletDevice()) {
+      isDrawing.current = false;
+      return;
+    }
+
+    /**
+     * Desktop
+     */
     isChangingStartLocation.current = false;
     isChangingEndLocation.current = false;
     isDrawing.current = false;
@@ -691,6 +740,7 @@ const Homepage = () => {
     if (isVisualizationDone.current) handleInstantPreview(startRow, startCol, endRow, endCol);
   }, [startRow, startCol, endRow, endCol, handleInstantPreview]);
 
+  const windowWidth = useRef(window.innerWidth);
   /**
    * Responsive feature
    * When user resizes the browser window or the page is loaded on a small-screen device,
@@ -699,9 +749,20 @@ const Homepage = () => {
    * * Step 2: Resizing the grid to match the screen size
    */
   const handleWindowResize = useCallback(() => {
-    stopVisualization();
+    const currentWindowWidth = window.innerWidth;
+    /**
+     * Scrolling on mobile device will trigger the window's resize event
+     * due to the showing/hidden behavior of the browser's URL bar.
+     * This behavior is undesirable.
+     * Our solution is to only run resizing logic when window's width change (not the height)
+     */
+    if (currentWindowWidth !== windowWidth.current) {
+      windowWidth.current = currentWindowWidth;
 
-    generateGridDataBasedOnScreensize();
+      stopVisualization();
+
+      generateGridDataBasedOnScreensize();
+    }
   }, [stopVisualization, generateGridDataBasedOnScreensize]);
 
   useEffect(() => {
@@ -739,6 +800,35 @@ const Homepage = () => {
     });
   }, [handleClearAll, selectedMazePattern, startRow, startCol, endRow, endCol]);
 
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
+
+  const handleOpenOnboardingModal = useCallback(() => {
+    setIsOnboardingModalOpen(true);
+  }, []);
+
+  const handleCloseOnboardingModal = useCallback(() => {
+    setIsOnboardingModalOpen(false);
+
+    /**
+     * After user explicitly closes the onboarding modal,
+     * prevent the modal from showing up again on further visit
+     */
+    const onboardingTimeString = localStorage.getItem(LOCAL_STORAGE_KEY_ONBOARDING_TIME);
+    if (onboardingTimeString === null) {
+      localStorage.setItem(LOCAL_STORAGE_KEY_ONBOARDING_TIME, Date.now().toString());
+    }
+  }, []);
+
+  useEffect(() => {
+    /**
+     * Automatically show onboarding modal on first visit
+     */
+    const onboardingTimeString = localStorage.getItem(LOCAL_STORAGE_KEY_ONBOARDING_TIME);
+    if (onboardingTimeString === null) {
+      setIsOnboardingModalOpen(true);
+    }
+  }, []);
+
   return (
     <Flex minHeight="100vh" alignItems="center" justifyContent="center" padding={8}>
       <VStack spacing={6}>
@@ -751,6 +841,7 @@ const Homepage = () => {
             onDone={handleDone}
             onClearVisualizationResults={handleClearVisualizationResults}
             onClearAll={handleClearAll}
+            onOpenOnboardingModal={handleOpenOnboardingModal}
           />
         </Box>
         <Grid
@@ -772,6 +863,7 @@ const Homepage = () => {
           />
         </Box>
       </VStack>
+      <OnboardingModal isOpen={isOnboardingModalOpen} onClose={handleCloseOnboardingModal} />
     </Flex>
   );
 };
