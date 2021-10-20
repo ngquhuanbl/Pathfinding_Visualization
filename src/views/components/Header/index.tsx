@@ -1,7 +1,7 @@
 import { SyntheticEvent, memo, useMemo } from 'react';
 
-import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
-import { Button, Select, Stack, Text, Spacer } from '@chakra-ui/react';
+import { CheckIcon, DeleteIcon, InfoIcon } from '@chakra-ui/icons';
+import { Button, Select, Stack, Text, Spacer, IconButton } from '@chakra-ui/react';
 
 import { PATH_FINDING_ALGORITHMS } from 'constants/algorithms/path-finding';
 
@@ -20,6 +20,7 @@ interface Props {
   onDone: () => void;
   onClearVisualizationResults: () => void;
   onClearAll: () => void;
+  onOpenOnboardingModal: () => void;
 }
 
 const Header = ({
@@ -30,6 +31,7 @@ const Header = ({
   onDone,
   onClearVisualizationResults,
   onClearAll,
+  onOpenOnboardingModal,
 }: Props) => {
   /**
    * A list of algorithm options
@@ -96,6 +98,12 @@ const Header = ({
           <Text display={['none', 'block']}>Clear visualization results + walls + desert</Text>
           <Text display={['block', 'none']}>Clear all</Text>
         </Button>
+        <IconButton
+          colorScheme="gray"
+          aria-label="Tutorial"
+          icon={<InfoIcon />}
+          onClick={onOpenOnboardingModal}
+        />
       </Stack>
     </Stack>
   );

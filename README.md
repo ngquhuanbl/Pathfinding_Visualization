@@ -74,9 +74,12 @@ The app works on different screen sizes.
 ![Responsive feature](src/assets/feature-responsive.gif)
 ## Instructions
 1. Select the pathfinding algorithm
-2. Add/remove wall and desert (optional)
-3. Adjust the animation speed (optional)
-4. Generate maze (optional)
-5. Start the visualization process by clicking the **Virtualize** button
+2. Move the start/end location (optional)<br/> Desktop: Drag and drop<br />Mobile/tablet: Select the start/end location -> Select the destination location
+3. Add/remove wall and desert (optional)
+4. Adjust the animation speed (optional)
+5. Generate maze (optional)
+6. Start the visualization process by clicking the **Virtualize** button
+
+
 
 
