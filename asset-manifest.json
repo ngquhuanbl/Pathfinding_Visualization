@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/Pathfinding_Visualization/static/css/main.6dea0f05.chunk.css",
-    "main.js": "/Pathfinding_Visualization/static/js/main.0e29b378.chunk.js",
-    "main.js.map": "/Pathfinding_Visualization/static/js/main.0e29b378.chunk.js.map",
+    "main.js": "/Pathfinding_Visualization/static/js/main.5c261f8b.chunk.js",
+    "main.js.map": "/Pathfinding_Visualization/static/js/main.5c261f8b.chunk.js.map",
     "runtime-main.js": "/Pathfinding_Visualization/static/js/runtime-main.e5d46fcd.js",
     "runtime-main.js.map": "/Pathfinding_Visualization/static/js/runtime-main.e5d46fcd.js.map",
     "static/js/2.616620c3.chunk.js": "/Pathfinding_Visualization/static/js/2.616620c3.chunk.js",
@@ -12,7 +12,7 @@
     "index.html": "/Pathfinding_Visualization/index.html",
     "static/css/main.6dea0f05.chunk.css.map": "/Pathfinding_Visualization/static/css/main.6dea0f05.chunk.css.map",
     "static/js/2.616620c3.chunk.js.LICENSE.txt": "/Pathfinding_Visualization/static/js/2.616620c3.chunk.js.LICENSE.txt",
-    "static/media/feature-drawing-wall-desert.a97f963c.gif": "/Pathfinding_Visualization/static/media/feature-drawing-wall-desert.a97f963c.gif",
+    "static/media/feature-drawing-wall-desert.774e56d8.gif": "/Pathfinding_Visualization/static/media/feature-drawing-wall-desert.774e56d8.gif",
     "static/media/feature-speed-modification.f8754f9b.gif": "/Pathfinding_Visualization/static/media/feature-speed-modification.f8754f9b.gif",
     "static/media/logo.d88fba2f.svg": "/Pathfinding_Visualization/static/media/logo.d88fba2f.svg",
     "static/media/onboarding-step1.9617aaef.gif": "/Pathfinding_Visualization/static/media/onboarding-step1.9617aaef.gif",
@@ -26,6 +26,6 @@
     "static/js/runtime-main.e5d46fcd.js",
     "static/js/2.616620c3.chunk.js",
     "static/css/main.6dea0f05.chunk.css",
-    "static/js/main.0e29b378.chunk.js"
+    "static/js/main.5c261f8b.chunk.js"
   ]
 }
