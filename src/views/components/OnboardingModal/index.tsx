@@ -116,12 +116,12 @@ const OnboardingModal = ({ isOpen, onClose, finalRef }: Props): JSX.Element => {
             </Text>
             {isMobileOrTabletDevice() ? (
               <>
-                <Text>Perform drag and drop action</Text>
+                <Text>Select the old start/end location, then select the new location</Text>
                 <img src={onboardingStep2Mobile} alt="Step 2 of onboarding" />
               </>
             ) : (
               <>
-                <Text>Select the old start/end location, then select the new location</Text>
+                <Text>Perform drag and drop action</Text>
                 <img src={onboardingStep2Desktop} alt="Step 2 of onboarding" />
               </>
             )}
